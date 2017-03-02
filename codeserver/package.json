@@ -1,0 +1,23 @@
+{
+  "name": "codeserver",
+  "version": "1.0.0",
+  "description": "code server that provides REST services for party live application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mschlechtinger/partylive.git"
+  },
+  "author": "robschu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mschlechtinger/partylive/issues"
+  },
+  "homepage": "https://github.com/mschlechtinger/partylive#readme",
+  "dependencies": {
+    "body-parser": "^1.17.0",
+    "express": "^4.15.0"
+  }
+}
