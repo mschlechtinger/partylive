@@ -97,3 +97,16 @@ codeserver/npm-debug.log
 
 #node modules
 codeserver/node_modules
+
+### Client App ###
+
+.idea/
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.externalNativeBuild
