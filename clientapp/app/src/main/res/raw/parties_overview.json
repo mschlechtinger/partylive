@@ -1,0 +1,23 @@
+{
+  "parties": [
+    {
+      "id": 1,
+      "latitude": 49.474932,
+      "longitude": 8.534611,
+      "public": true
+    },
+    {
+      "id": 2,
+      "latitude": 49.474240,
+      "longitude": 8.533729,
+      "public": false
+    },
+    {
+      "id": 3,
+      "latitude": 49.475020,
+      "longitude": 8.531740,
+      "public": true
+    }
+  ]
+
+}
