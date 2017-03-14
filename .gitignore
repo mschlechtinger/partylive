@@ -98,6 +98,9 @@ codeserver/npm-debug.log
 #node modules
 codeserver/node_modules
 
+#config
+codeserver/config.js
+
 ### Client App ###
 
 .idea/
