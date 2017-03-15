@@ -21,7 +21,7 @@ router.get('/fail', function(req, res){
 
 //handle request for path myserver/auth/login/testAuth
 router.get('/testAuth', function(req, res){
-	if (req.user){
+	if (req.isAuthenticated()){
 		console.log('User is logged in: \n'+ req.user);
 		res.status(200).json({status: 'A User is logged in'});
 	}

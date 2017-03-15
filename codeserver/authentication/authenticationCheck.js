@@ -2,7 +2,7 @@
 
 module.exports = function (req, res, next) {
     // if user is authenticated in the session, carry on
-    if (req.user) {
+    if (req.isAuthenticated()) {
         return next();
     }
     else {

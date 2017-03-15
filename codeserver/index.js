@@ -36,14 +36,12 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Configure passport-local to use account model for authentication
+// Configure passport to use account model for authentication
 var Account = require('./models/account');
 passport.use(Account.createStrategy());
 
 passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
-
-
 
 app.use(routes);
 
