@@ -99,7 +99,7 @@ codeserver/npm-debug.log
 codeserver/node_modules
 
 #config
-codeserver/config.js
+/codeserver/config.js
 
 ### Client App ###
 
