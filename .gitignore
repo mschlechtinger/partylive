@@ -113,3 +113,4 @@ codeserver/node_modules
 /build
 /captures
 .externalNativeBuild
+codeserver/config.js
