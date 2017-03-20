@@ -110,8 +110,8 @@ public class MainActivity extends AppCompatActivity
 
     // Animations
     private int fabImg;
-    private static int MARKER_WIDTH = 26;
-    private static int MARKER_HEIGHT = 38;
+    private static int MARKER_WIDTH;
+    private static int MARKER_HEIGHT;
     private Marker activeMarker;
 
 
@@ -145,8 +145,8 @@ public class MainActivity extends AppCompatActivity
 
         // Set Marker properties
         scale = context.getResources().getDisplayMetrics().density;
-        MARKER_HEIGHT = (int) (MARKER_HEIGHT * scale + 0.5f);
-        MARKER_WIDTH = (int) (MARKER_WIDTH * scale + 0.5f);
+        MARKER_WIDTH = (int) (26 * scale + 0.5f);
+        MARKER_HEIGHT = (int) (38 * scale + 0.5f);
 
         // Get Reference for Floating Action Button
         fab = (FloatingActionButton) findViewById(R.id.fab);
