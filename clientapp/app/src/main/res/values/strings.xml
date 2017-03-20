@@ -1,4 +1,23 @@
 <resources>
     <string name="app_name">PARTYlive</string>
     <string name="title_activity_main">PARTYLive</string>
+
+    <!-- button text -->
+    <string name="button_text_show_bottom_sheet">Show bottom sheet</string>
+    <string name="button_text_collapse_bottom_sheet">Collapse bottom sheet</string>
+    <string name="button_text_hide_bottom_sheet">Hide bottom sheet</string>
+    <string name="button_text_show_bottom_sheet_dialog">Show bottom sheet dialog</string>
+
+    <!-- bottom sheet -->
+    <string name="string_bottom_sheet_behavior">android.support.design.widget.BottomSheetBehavior</string>
+
+    <string name="text_pull_to_show_more">pull to show more content</string>
+    <string name="text_showing_sheet_content">Bottom sheet content</string>
+    <string name="text_click_me">Click me</string>
+
+    <!-- bottom sheet guest list strings -->
+    <string name="no_participators">Be the first one to join this party!</string>
+    <string name="some_participators">are attending</string>
+
 </resources>
+
