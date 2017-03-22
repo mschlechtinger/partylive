@@ -13,10 +13,10 @@ const nameSchema = new Schema({
 const Account = new Schema({
 	name: {
 		type: nameSchema,
-		get: name => name.givenName + " " + name.middleName + " " + name.familyName
+		get: name => name.givenName + " " + name.familyName
 		},
 	imgUrl: String,
-	events: [Schema.Types.ObjectId],
+	events: [Schema.Types.ObjectId], 
 	lastLoginDate: {type: Date, default: Date.now}
 }, { strict: true });
 
