@@ -15,10 +15,10 @@ const Account = new Schema({
 		type: nameSchema,
 		get: name => name.givenName + " " + name.middleName + " " + name.familyName
 		},
-	pictureUrl: String,
-	creationDate: {type: Date, default: Date.now},
+	imgUrl: String,
+	events: [Schema.Types.ObjectId],
 	lastLoginDate: {type: Date, default: Date.now}
-});
+}, { strict: true });
 
 Account.plugin(passportLocalMongoose, {
 	userNameField: 'email'
