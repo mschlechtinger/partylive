@@ -13,7 +13,9 @@ const nameSchema = new Schema({
 const Account = new Schema({
 	name: {
 		type: nameSchema,
-		get: name => name.givenName + " " + name.familyName
+		get: function(name){
+			return name.join(' ');
+		}
 		},
 	imgUrl: String,
 	events: [Schema.Types.ObjectId], 
