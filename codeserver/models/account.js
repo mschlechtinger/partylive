@@ -14,11 +14,20 @@ const Account = new Schema({
 	name: {
 		type: nameSchema,
 		get: function(name){
-			return name.join(' ');
+			var nameString = "";
+			if(name.givenName){
+				nameString += name.givenName + " ";
+			}
+			if(name.middleName){
+				nameString += name.middleName + " ";
+			}
+			if(name.familyName){
+				nameString += name.familyName;
+			}
+			return nameString;
 		}
 		},
 	imgUrl: String,
-	events: [Schema.Types.ObjectId], 
 	lastLoginDate: {type: Date, default: Date.now}
 }, { strict: true });
 
