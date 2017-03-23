@@ -15,14 +15,16 @@ const Account = new Schema({
 		type: nameSchema,
 		get: function(name){
 			var nameString = "";
-			if(name.givenName){
-				nameString += name.givenName + " ";
-			}
-			if(name.middleName){
-				nameString += name.middleName + " ";
-			}
-			if(name.familyName){
-				nameString += name.familyName;
+			if(name){
+				if(name.givenName){
+					nameString += name.givenName + " ";
+				}
+				if(name.middleName){
+					nameString += name.middleName + " ";
+				}
+				if(name.familyName){
+					nameString += name.familyName;
+				}
 			}
 			return nameString;
 		}

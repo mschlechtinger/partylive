@@ -9,6 +9,7 @@ const Account = require('../../models/account');
 
 //handle request for path myserver/events/
 router.get('/', authenticationCheck, function(req, res) {
+	const maxGuestImgs = 4;
 	//see the events that start in the past eight hours and in the future
 	var visibleFromDate = new Date();
 	visibleFromDate.setTime(visibleFromDate.getTime() - (8*60*60*1000));
@@ -18,11 +19,11 @@ router.get('/', authenticationCheck, function(req, res) {
 			{
 				$or:[
 				{
-					'organizer': req.user.id		//user is organizer
+					'organizer.id': req.user.id		//user is organizer
 				},{
 					'guests.guestId': req.user.id	//user is invited
 				},{
-					'public': true					//event is public
+					'publicEvent': true					//event is public
 				}]
 			},
 			{
@@ -34,16 +35,28 @@ router.get('/', authenticationCheck, function(req, res) {
 			var outputEvents = [];
 
 			for (var i = events.length - 1; i >= 0; i--) {
+				var outputEvent = {};
 				var currentEvent = events[i];
 				//calculate how many guests accepted the meeting
-				currentEvent.guests = currentEvent.guests.filter(function(event){
+				var guests = currentEvent.guests.filter(function(event){
 					return event.status === 'Accepted';
 				});
-				currentEvent.guestCount = currentEvent.guests.length;
+				outputEvent.guestCount = guests.length;
 				//TODO try to show most relevant users for user
-				currentEvent.guests = currentEvent.guests.slice(0,5);
+				outputEvent.guestImgs = [];
+				for (var j = guests.length - 1; j >= 0; j--) {
+					var imgUrl = guests[j].imgUrl;
+					if(outputEvent.guestImgs.length < maxGuestImgs && imgUrl){
+						outputEvent.guestImgs.push(imgUrl);
+					}	
+				}
 
-			outputEvents.push(currentEvent);
+				outputEvent._id = currentEvent.id;
+				outputEvent.title = currentEvent.title;
+				outputEvent.publicEvent = currentEvent.publicEvent;
+				outputEvent.location = currentEvent.location;
+				outputEvent.imgUrl = currentEvent.imgUrl;
+				outputEvents.push(outputEvent);
 			}
 	    	res.status(200).json(outputEvents);
 	});
@@ -86,8 +99,8 @@ router.post('/', authenticationCheck, function(req, res) {
 			location: body.location,
 			description: body.description,
 			imgUrl: body.imgUrl,
-			organizer: req.user.id,
-			public: body.public,
+			organizer: {id: req.user.id, name: req.user.name, imgUrl:  req.user.imgUrl},
+			publicEvent: body.publicEvent,
 			guests: guests,
 			bringItems: body.bringItems
 		});
