@@ -22,7 +22,7 @@ router.delete('/', authenticationCheck, function (req, res) {
     EventModel.findById(req.params.eventId, function (err,event){
 	    if(err) return res.status(500).json(err);
 	    if(!event) return res.status(404).json({error: 'Event not found'});
-	    if(event.organizer.toString() !== req.user.id) return res.status(403).json({error: 'User is not the organizer of the event'});
+	    if(event.organizer._id.toString() !== req.user.id) return res.status(403).json({error: 'User is not the organizer of the event'});
 	    
 	    event.remove();
 	    res.status(204).send();
@@ -33,7 +33,7 @@ router.put('/', authenticationCheck, function(req, res){
 	EventModel.findById(req.params.eventId, function(err, event){
 	    if(err) return res.status(500).json(err);
 	    if(!event) return res.status(404).json({error: 'Event not found'});
-	    if(event.organizer.toString() !== req.user.id) return res.status(403).json({error: 'User is not the organizer of the event'});
+	    if(event.organizer._id.toString() !== req.user.id) return res.status(403).json({error: 'User is not the organizer of the event'});
 	    
 	    //TODO add input validation
 
@@ -41,7 +41,7 @@ router.put('/', authenticationCheck, function(req, res){
 	    event.startDate = req.body.startDate;
 	    event.description = req.body.description;
 	    event.imgUrl = req.body.imgUrl;
-	    event.public = req.body.public;
+	    event.publicEvent = req.body.publicEvent;
 	    event.location = req.body.location;
 	    event.bringItems = req.body.bringItems;
 	    
@@ -49,6 +49,7 @@ router.put('/', authenticationCheck, function(req, res){
 	    var guests = [];
 	    for (var i = req.body.guests.length - 1; i >= 0; i--) {
 	    	var guest = req.body.guests[i];
+	    	//TODO parse from account document
 	    	if(guest.constructor === String) guest = {guestId: guest, status: 'Not Invited'};
 
 	    	guests.push(guest);

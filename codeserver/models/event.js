@@ -7,7 +7,7 @@ const EventSchema = new Schema({
 	title: String,
 	description: String,
 	imgUrl: String,
-	organizer: {id: Schema.Types.ObjectId, name: String, imgUrl: String },
+	organizer: {_id: Schema.Types.ObjectId, name: String, imgUrl: String },
 	location: {latitude: Number, longitude: Number},
 	publicEvent: Boolean,
 	guests: [ { guestId: Schema.Types.ObjectId, status: String, name: String, imgUrl: String } ],

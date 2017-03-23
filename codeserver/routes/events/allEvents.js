@@ -19,7 +19,7 @@ router.get('/', authenticationCheck, function(req, res) {
 			{
 				$or:[
 				{
-					'organizer.id': req.user.id		//user is organizer
+					'organizer._id': req.user.id		//user is organizer
 				},{
 					'guests.guestId': req.user.id	//user is invited
 				},{
@@ -56,6 +56,7 @@ router.get('/', authenticationCheck, function(req, res) {
 				outputEvent.publicEvent = currentEvent.publicEvent;
 				outputEvent.location = currentEvent.location;
 				outputEvent.imgUrl = currentEvent.imgUrl;
+
 				outputEvents.push(outputEvent);
 			}
 	    	res.status(200).json(outputEvents);
@@ -99,7 +100,7 @@ router.post('/', authenticationCheck, function(req, res) {
 			location: body.location,
 			description: body.description,
 			imgUrl: body.imgUrl,
-			organizer: {id: req.user.id, name: req.user.name, imgUrl:  req.user.imgUrl},
+			organizer: {_id: req.user.id, name: req.user.name, imgUrl:  req.user.imgUrl},
 			publicEvent: body.publicEvent,
 			guests: guests,
 			bringItems: body.bringItems
