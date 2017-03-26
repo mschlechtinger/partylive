@@ -8,34 +8,54 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:largeHeap="true">
+        android:name=".MyApplication">
 
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
 
         <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main">
+            android:name=".StartActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"></action>
+                <category android:name="android.intent.category.LAUNCHER"></category>
             </intent-filter>
         </activity>
 
-        <activity android:name=".PartyCreatorActivity"
-            android:parentActivityName=".MainActivity" >
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity
+            android:name=".LoginActivity"
+            android:label="Login"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"></activity>
+        <activity
+            android:name=".PartyCreatorActivity"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
 
-        <activity android:name=".PartyConfiguratorActivity"
-            android:parentActivityName=".PartyCreatorActivity" >
+        <activity
+            android:name=".PartyConfiguratorActivity"
+            android:parentActivityName=".PartyCreatorActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PartyCreatorActivity" />
