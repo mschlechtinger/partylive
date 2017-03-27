@@ -7,15 +7,16 @@ import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -41,16 +42,15 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity
     private View mBottomSheet;
     private Context context;
     private FloatingActionButton fab;
-    ArrayList<Party> parties = new ArrayList<>();
     ActivityMainBinding binding;
     RelativeLayout userIconsLayout;
 
@@ -113,6 +112,13 @@ public class MainActivity extends AppCompatActivity
     private static int MARKER_WIDTH;
     private static int MARKER_HEIGHT;
     private Marker activeMarker;
+
+    // Network & JSON Variables
+    private ObjectMapper mapper;
+    private String session;
+    private String userId;
+
+
 
 
     @Override
@@ -153,7 +159,42 @@ public class MainActivity extends AppCompatActivity
 
         // Create the bottom slide up window
         createBottomSheet();
+
+
+
+
+        // Instantiate RestClient
+        RestClient.getInstance(this);
+        mapper = new ObjectMapper();
+        // TEST API
+        try {
+            login();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
+
+
+    private void getPartiesFromServer() {
+        RestClient.getInstance().get(userId, session, "/events", new MyListener<String>()
+        {
+            @Override
+            public void getResult(String response) {
+                if (response != null)
+                {
+                    // Get the session cookie & userId
+                    try {
+                        System.out.println(response);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        });
+    }
+
 
 
     /**
@@ -209,6 +250,16 @@ public class MainActivity extends AppCompatActivity
         });
 
         mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(new SampleFragmentPagerAdapter(getSupportFragmentManager(),
+                MainActivity.this));
+
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
 
@@ -270,24 +321,29 @@ public class MainActivity extends AppCompatActivity
 
 
         // Get parties from JSON
-        getParties();
-        // Set markers for parties
-        setPartyLocations();
+        try {
+            String partyJson = loadJSON(R.raw.parties_overview);
+            ArrayList<Party> parties = getParties(partyJson);
+
+            // Set markers for parties
+            setPartyLocations(parties);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
         // Get the current location of the device and set the position of the map.
         updateDeviceLocation();
     }
 
-    private void getParties() {
+    /**
+     * Gets parties from Party Json
+     */
+    private ArrayList<Party> getParties(String json) {
         try {
-            String json = loadJSON(R.raw.parties_overview);
+            ArrayList<Party> parties = new ArrayList<>();
             JSONArray partiesJSONArray = new JSONObject(json).getJSONArray("parties");
-            Log.d(TAG, "--------------JSON SUCCESSFULLY LOADED!!!!----------------");
-
-
-            //SONArray parties = new JSONObject(partiesJSON).getJSONArray("parties");
-            ObjectMapper mapper = new ObjectMapper();
 
             final JsonNode arrNode = mapper.readTree(json).get("parties");
 
@@ -302,11 +358,11 @@ public class MainActivity extends AppCompatActivity
             for (Party p:parties) {
                 Log.d(TAG, p.getTitle());
             }
+            return parties;
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
+        return null;
     }
 
     /**
@@ -328,10 +384,10 @@ public class MainActivity extends AppCompatActivity
     /**
      * set markers for parties
      */
-    private void setPartyLocations() {
+    private void setPartyLocations(ArrayList<Party> parties) {
         for (Party p:parties) {
 
-            LatLng partyLocation = new LatLng(p.getLatitude(), p.getLongitude());
+            LatLng partyLocation = new LatLng(p.getLocation().getLatitude(), p.getLocation().getLongitude());
 
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(partyLocation)
@@ -447,7 +503,13 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
+    /**
+     * Takes a drawable icon resource, converts it to a bitmap and resizes it
+     * @param iconResource R.drawable resource
+     * @param width the width of the outcoming bitmap
+     * @param height the height of the outcoming bitmap
+     * @return the resized bitmap
+     */
     public Bitmap resizeMapIcons(int iconResource, int width, int height){
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), iconResource);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
@@ -487,6 +549,7 @@ public class MainActivity extends AppCompatActivity
         }
 
 
+
         // Apply binding to bottom sheet
         Party party = (Party) marker.getTag();
 
@@ -499,6 +562,44 @@ public class MainActivity extends AppCompatActivity
 
         return true;
     }
+
+
+    public void login() throws JSONException {
+
+        JSONObject payload = new JSONObject();
+
+        // TODO: Delete hardcoded userdata and use the ones from the user
+        payload.put("username", "robefrt.schulzt@wovw.de");
+        payload.put("password", "ayylmao");
+
+        String path = "/auth/login";
+
+        RestClient.getInstance().post(payload, path, new MyListener<JSONObject>()
+        {
+            @Override
+            public void getResult(JSONObject response) {
+                if (response != null)
+                {
+                    // Get the session cookie & userId
+                    try {
+                        JsonNode root = mapper.readTree(response.toString());
+                        userId = root.get("userId").toString();
+                        session = root.at("/headers").get("set-cookie").toString();
+
+                        System.out.println(userId);
+                        System.out.println(session);
+
+                        getPartiesFromServer();
+
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        });
+    }
+
 
     /**
      * Creates the preview for the party guests within the Bottom Sheet

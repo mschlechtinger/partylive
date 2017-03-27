@@ -10,8 +10,7 @@
     android:id="@+id/layout_bottom_sheet_upper_box"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="0.25">
+    android:layout_height="match_parent">
 
 
     <ImageView
@@ -35,7 +34,7 @@
         android:layout_width="0dp"
         android:layout_weight="0.5"
         android:layout_height="match_parent"
-        android:padding="@dimen/margin_small">
+        android:padding="@dimen/margin_normal">
 
         <!-- Title -->
         <TextView
@@ -109,7 +108,8 @@
             android:id="@+id/guests_overview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.35">
+            android:layout_weight="0.35"
+            android:gravity="bottom">
 
         </RelativeLayout>
 
@@ -122,10 +122,11 @@
         android:layout_width="0dp"
         android:layout_weight="0.2"
 
-        android:text="Distance Placeholder"
+        android:text="Distance to Party"
         android:textColor="@color/colorText"
 
-        android:gravity="bottom"/>
+        android:gravity="bottom"
+        android:padding="@dimen/margin_normal"/>
 
-</LinearLayout>
+    </LinearLayout>
 </layout>
