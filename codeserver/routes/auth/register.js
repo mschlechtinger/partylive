@@ -25,7 +25,7 @@ router.post('/', function(req, res) {
       }
       console.log('User logged in!');
     });
-    res.status(200).json({"status":"You registered the user " + req.body.username});
+    res.status(200).json({"status":"You registered the user " + req.user.username, "id": req.user.id});
   });
 });
 
