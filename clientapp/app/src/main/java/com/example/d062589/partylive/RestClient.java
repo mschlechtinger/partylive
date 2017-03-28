@@ -3,6 +3,7 @@ package com.example.d062589.partylive;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -97,8 +98,7 @@ public class RestClient {
                         listener.getResult(response);
                 }
             },
-                new Response.ErrorListener()
-                {
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error)
                     {
@@ -109,16 +109,16 @@ public class RestClient {
                         }
                     }
                 }) {
-            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("userId", userId);
-                params.put("cookie", sessionCookie);
-                return params;
-            }
-        };
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Cookie", sessionCookie);
+                        params.put("userId", userId);
+                        return params;
+                    }
+                };
         requestQueue.add(request);
-    };
-
+    }
 
 
 }

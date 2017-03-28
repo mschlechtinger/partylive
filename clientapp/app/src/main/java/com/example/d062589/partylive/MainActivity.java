@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
 
     // Network & JSON Variables
     private ObjectMapper mapper;
-    private String session;
+    private String sessionCookie;
     private String userId;
 
 
@@ -173,26 +173,6 @@ public class MainActivity extends AppCompatActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-
-    private void getPartiesFromServer() {
-        RestClient.getInstance().get(userId, session, "/events", new MyListener<String>()
-        {
-            @Override
-            public void getResult(String response) {
-                if (response != null)
-                {
-                    // Get the session cookie & userId
-                    try {
-                        System.out.println(response);
-                    } catch(Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-        });
     }
 
 
@@ -522,6 +502,9 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public boolean onMarkerClick(final Marker marker) {
+        getPartiesFromServer();
+
+
         // Update camera position
         CameraUpdate markerLocation = CameraUpdateFactory.newLatLngZoom(
                 marker.getPosition(),
@@ -584,13 +567,34 @@ public class MainActivity extends AppCompatActivity
                     try {
                         JsonNode root = mapper.readTree(response.toString());
                         userId = root.get("userId").toString();
-                        session = root.at("/headers").get("set-cookie").toString();
+                        sessionCookie = root.at("/headers").get("set-cookie").toString();
 
-                        System.out.println(userId);
-                        System.out.println(session);
+                        // Remove Quotes
+                        userId = userId.substring(1, userId.length() - 1);
+                        sessionCookie = sessionCookie.substring(1, sessionCookie.length() - 1);
 
                         getPartiesFromServer();
 
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        });
+    }
+
+
+    private void getPartiesFromServer() {
+        RestClient.getInstance().get(userId, sessionCookie, "/events", new MyListener<String>()
+        {
+            @Override
+            public void getResult(String response) {
+                if (response != null)
+                {
+                    // Get the session cookie & userId
+                    try {
+                        System.out.println(response);
                     } catch(Exception e) {
                         e.printStackTrace();
                     }
