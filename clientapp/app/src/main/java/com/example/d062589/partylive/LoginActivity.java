@@ -11,6 +11,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by KAUPPFBI on 12.01.2017.
  */
@@ -40,7 +46,11 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                login();
+                try {
+                    login();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -55,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void login() {
+    public void login() throws JSONException {
         Log.d(TAG, "Login");
 
         /*if(!validate()){
@@ -74,19 +84,59 @@ public class LoginActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
-        // TODO: Implement authentication logic here.
+        new android.os.Handler().
+                postDelayed(
+                        new Runnable() {
+                            public void run() {
+                                JSONObject payload = new JSONObject();
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 100);
+                                try {
+                                    payload.put("username", "robefrt.schulzt@wovw.de");
+                                    payload.put("password", "ayylmao");
+
+                                    //payload.put("username", email);
+                                    //payload.put("password", password);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                String path = "/auth/login";
+
+                                RestClient.getInstance(getApplicationContext()).post(payload, path, new MyListener<JSONObject>() {
+                                    @Override
+                                    public void getResult(JSONObject response) {
+                                        if (response != null) {
+                                            // Network & JSON Variables
+                                            ObjectMapper mapper = new ObjectMapper();
+                                            String session;
+                                            String userId;
+
+                                            // Get the session cookie & userId
+                                            try {
+                                                JsonNode root = mapper.readTree(response.toString());
+                                                userId = root.get("userId").toString();
+                                                session = root.at("/headers").get("set-cookie").toString();
+
+                                                Log.e(TAG, "userID: " + userId);
+                                                Log.e(TAG, "session: " + session);
+
+
+                                                progressDialog.dismiss();
+                                                onLoginSuccess(userId, session);
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            onLoginFailed();
+                                        }
+                                    }
+
+                                });
+                            }
+                        }, 1300);
+
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -106,15 +156,17 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void onLoginSuccess() {
+    public void onLoginSuccess(String userId, String session) {
         loginButton.setEnabled(true);
         finish();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("userId", userId);
+        intent.putExtra("session", session);
         startActivity(intent);
     }
 
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "Login failed! Try it again", Toast.LENGTH_LONG).show();
 
         loginButton.setEnabled(true);
     }

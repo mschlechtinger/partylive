@@ -21,8 +21,6 @@ import java.util.Map;
 
 public class RestClient {
 
-
-
     private static final String TAG = "RestClient";
     private static RestClient instance = null;
 
@@ -31,24 +29,20 @@ public class RestClient {
     //for Volley API
     public RequestQueue requestQueue;
 
-    private RestClient(Context context)
-    {
+    private RestClient(Context context) {
         requestQueue = Volley.newRequestQueue(context.getApplicationContext());
         //other stuff if you need
     }
 
-    public static synchronized RestClient getInstance(Context context)
-    {
+    public static synchronized RestClient getInstance(Context context) {
         if (null == instance)
             instance = new RestClient(context);
         return instance;
     }
 
     // this is so you don't need to pass context each time
-    public static synchronized RestClient getInstance()
-    {
-        if (null == instance)
-        {
+    public static synchronized RestClient getInstance() {
+        if (null == instance) {
             throw new IllegalStateException(RestClient.class.getSimpleName() +
                     " is not initialized, call getInstance(...) first");
         }
@@ -56,26 +50,21 @@ public class RestClient {
     }
 
 
-
-    public void post(JSONObject entity, String path, final MyListener<JSONObject> listener)
-    {
+    public void post(JSONObject entity, String path, final MyListener<JSONObject> listener) {
         String absoluteUrl = PREFIX_URL + path;
 
         MetaRequest request = new MetaRequest(Request.Method.POST, absoluteUrl, entity, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    Log.d(TAG + ": ", "PostRequest Response : " + response.toString());
-                    if (null != response.toString())
-                        listener.getResult(response);
-                }
-            },
-                new Response.ErrorListener()
-                {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG + ": ", "PostRequest Response : " + response.toString());
+                if (null != response.toString())
+                    listener.getResult(response);
+            }
+        },
+                new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError error)
-                    {
-                        if (null != error.networkResponse)
-                        {
+                    public void onErrorResponse(VolleyError error) {
+                        if (null != error.networkResponse) {
                             Log.d(TAG + ": ", "Error Response code: " + error.networkResponse.statusCode);
                             listener.getResult(null);
                         }
@@ -85,25 +74,21 @@ public class RestClient {
     }
 
 
-    public void get(final String userId, final String sessionCookie, String path, final MyListener<String> listener)
-    {
+    public void get(final String userId, final String sessionCookie, String path, final MyListener<String> listener) {
         String absoluteUrl = PREFIX_URL + path;
 
         final StringRequest request = new StringRequest(Request.Method.GET, absoluteUrl, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.d(TAG + ": ", "PostRequest Response : " + response);
-                    if (null != response)
-                        listener.getResult(response);
-                }
-            },
-                new Response.ErrorListener()
-                {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG + ": ", "PostRequest Response : " + response);
+                if (null != response)
+                    listener.getResult(response);
+            }
+        },
+                new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError error)
-                    {
-                        if (null != error.networkResponse)
-                        {
+                    public void onErrorResponse(VolleyError error) {
+                        if (null != error.networkResponse) {
                             Log.d(TAG + ": ", "Error Response code: " + error.networkResponse.statusCode);
                             listener.getResult(null);
                         }
@@ -117,8 +102,9 @@ public class RestClient {
             }
         };
         requestQueue.add(request);
-    };
+    }
 
+    ;
 
 
 }
