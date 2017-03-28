@@ -1,12 +1,10 @@
 package com.example.d062589.partylive;
 
 import android.databinding.BaseObservable;
-import android.databinding.Bindable;
 import android.databinding.BindingAdapter;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
 
 /**
  * Created by D062589 on 10.03.2017.
@@ -14,30 +12,19 @@ import com.squareup.picasso.Picasso;
 
 public class Party extends BaseObservable {
     private int id;
-    private double latitude;
-    private double longitude;
     private boolean publicParty;
     private String title;
     private String imgUrl;
     private String[] guestImgs;
     private int numberOfGuests;
     private Organizer organizer;
+    private Location location;
 
     public String getTitle() {
         return title;
     }
 
-    public boolean isPublic() {
-        return publicParty;
-    }
 
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
 
     public int getId() {
         return id;
@@ -45,18 +32,6 @@ public class Party extends BaseObservable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public void setPublicParty(boolean publicParty) {
-        this.publicParty = publicParty;
     }
 
     public void setTitle(String title) {
@@ -75,11 +50,6 @@ public class Party extends BaseObservable {
         //view.setImageURI(Uri.parse(imageUri));
         // TODO: change to use backend information
         String resource = "android.resource://com.example.d062589.partylive/drawable/" + imageUri;
-        /*Picasso.with(view.getContext())
-                .load(resource)
-                .placeholder(R.drawable.default_party)
-                .into(view);*/
-
         Glide.with(view.getContext())
                 .load(resource)
                 .thumbnail(Glide.with(view.getContext())
@@ -98,6 +68,9 @@ public class Party extends BaseObservable {
         return guestImgs;
     }
 
+    public boolean isPublicParty() {
+        return publicParty;
+    }
 
 
     // Subclass Organizer
@@ -115,6 +88,25 @@ public class Party extends BaseObservable {
 
         public String getImgUrl() {
             return imgUrl;
+        }
+    }
+
+
+    // Subclass Location
+    public Location getLocation() {
+        return location;
+    }
+
+    public class Location {
+        private double latitude;
+        private double longitude;
+
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public double getLatitude() {
+            return latitude;
         }
     }
 }

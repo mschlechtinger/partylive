@@ -28,7 +28,8 @@
 
 
         <!-- bottom sheet -->
-        <include layout="@layout/party_sheet"
+        <include
+            layout="@layout/party_sheet"
             bind:party="@{party}"/>
 
 

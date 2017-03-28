@@ -24,13 +24,22 @@
 
 
         <!-- bottom sheet upper box -->
-        <include layout="@layout/party_overview"
-            bind:party="@{party}"/>
+        <include
+            layout="@layout/party_overview"
+            bind:party="@{party}"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.25"/>
 
 
         <!-- bottom sheet lower box -->
-        <include layout="@layout/party_details"
-            bind:party="@{party}"/>
+        <include
+            layout="@layout/party_details"
+            bind:party="@{party}"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.75"
+            />
 
     </LinearLayout>
 </layout>

@@ -2,8 +2,10 @@
   "parties": [
     {
       "id": 1,
-      "latitude": 49.474932,
-      "longitude": 8.534611,
+      "location": {
+        "latitude": 49.474932,
+        "longitude": 8.534611
+      },
       "publicParty": true,
       "title": "Marks Party",
       "organizer": {
@@ -16,8 +18,10 @@
     },
     {
       "id": 2,
-      "latitude": 49.474240,
-      "longitude": 8.533729,
+      "location": {
+        "latitude": 49.474240,
+        "longitude": 8.533729
+      },
       "publicParty": false,
       "title": "Bargus Grillparty",
       "organizer": {
@@ -30,8 +34,10 @@
     },
     {
       "id": 3,
-      "latitude": 49.475020,
-      "longitude": 8.531740,
+      "location": {
+        "latitude": 49.475020,
+        "longitude": 8.531740
+      },
       "publicParty": true,
       "title": "Party bei mir zuhause",
       "organizer": {
@@ -44,8 +50,10 @@
     },
     {
       "id": 4,
-      "latitude": 49.493170,
-      "longitude": 8.468990,
+      "location": {
+        "latitude": 49.493170,
+        "longitude": 8.468990
+      },
       "publicParty": false,
       "title": "Roberts Hausfete",
       "organizer": {
@@ -58,8 +66,10 @@
     },
     {
       "id": 5,
-      "latitude": 49.493150,
-      "longitude": 8.468990,
+      "location": {
+        "latitude": 49.493030,
+        "longitude": 8.468070
+      },
       "publicParty": true,
       "title": "Dirks Party",
       "organizer": {
