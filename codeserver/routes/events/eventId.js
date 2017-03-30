@@ -14,7 +14,45 @@ router.get('/', authenticationCheck, function(req, res) {
 	EventModel.findById(req.params.eventId, function (err,event) {
 		if(err) return res.status(500).json(err);
 
-    	res.status(200).json(event);
+		var resEvent = {};
+
+		resEvent.id = event._id;
+		resEvent.title = event.title;
+		resEvent.startDate = event.startDate;
+		resEvent.description = event.description;
+		resEvent.imgUrl	 = event.imgUrl;
+		resEvent.location = event.location;
+
+		resEvent.organizer = {};
+		resEvent.organizer.id = event.organizer._id;
+		resEvent.organizer.name = event.organizer.name;
+		resEvent.organizer.imgUrl = event.organizer.imgUrl;
+
+		var guests  = [];
+
+		for (var i = event.guests.length - 1; i >= 0; i--) {
+			var resGuest  = {};
+			var currGuest = event.guests[i];
+			resGuest.id = currGuest._id;
+			resGuest.name = currGuest.name;
+			resGuest.imgUrl = currGuest.imgUrl;
+			resGuest.status	= currGuest.status;
+			guests.push(resGuest);
+		}
+		resEvent.guests = guests;
+
+		var bringItems  = [];
+		for (var j = event.bringItems.length - 1; j >= 0; j--) {
+			var resItem  = {};
+			var currItem = event.bringItems[j];
+			resItem.id = currItem._id;
+			resItem.name = currItem.name;
+			resItem.imgUrl = currItem.imgUrl;
+			resItem.status	= currItem.status;
+			bringItems.push(resItem);
+		}
+
+    	res.status(200).json(resEvent);
 	});
 });
 

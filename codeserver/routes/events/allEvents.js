@@ -9,6 +9,7 @@ const Account = require('../../models/account');
 
 //handle request for path myserver/events/
 router.get('/', authenticationCheck, function(req, res) {
+
 	const maxGuestImgs = 4;
 	//see the events that start in the past eight hours and in the future
 	var visibleFromDate = new Date();
@@ -51,12 +52,14 @@ router.get('/', authenticationCheck, function(req, res) {
 					}	
 				}
 
-				outputEvent._id = currentEvent.id;
+				outputEvent.id = currentEvent.id;
 				outputEvent.title = currentEvent.title;
 				outputEvent.publicEvent = currentEvent.publicEvent;
 				outputEvent.location = currentEvent.location;
 				outputEvent.imgUrl = currentEvent.imgUrl;
-
+				outputEvent.organizer.id = currentEvent.organizer._id;
+				outputEvent.organizer.imgUrl = currentEvent.organizer.imgUrl;
+				outputEvent.organizer.name = currentEvent.organizer.name;
 				outputEvents.push(outputEvent);
 			}
 	    	res.status(200).json(outputEvents);
@@ -76,7 +79,7 @@ router.post('/', authenticationCheck, function(req, res) {
 		guestIds.push( new mongoose.Types.ObjectId( body.guests[i] ) );
 	}
 
-	Account.find({_id: {$in: guestIds}}, 'username name imgUrl', function(err, accounts){
+	Account.find({_id: {$in: guestIds}}, '_id username name imgUrl', function(err, accounts){
 		if(err) return res.status(500).json({error:err.message});
 
 		for (var i = accounts.length - 1; i >= 0; i--) {
@@ -90,6 +93,7 @@ router.post('/', authenticationCheck, function(req, res) {
 			}
 			guest.imgUrl = account.imgUrl;
 			guest.status = "Accepted";
+			guest.guestId = account._id;
 
 			guests.push(guest);
 		}
@@ -109,7 +113,7 @@ router.post('/', authenticationCheck, function(req, res) {
 		newEvent.save(function(err, createdEvent){
 			if(err) {
 				console.log(err);
-				return res.status(500).json({error:err.message});
+				return res.status(500).json({error: err.message});
 			}
 			res.status(201).json(createdEvent);
 		});
