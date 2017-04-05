@@ -3,7 +3,7 @@
     <data>
         <variable
             name="party"
-            type="com.example.d062589.partylive.Party"/>
+            type="com.example.d062589.partylive.Models.Party"/>
     </data>
     <android.support.design.widget.CoordinatorLayout
         xmlns:tools="http://schemas.android.com/tools"
@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:textColor="@color/colorText"
         android:background="@color/colorBackground"
-        tools:context="com.example.d062589.partylive.PartyCreatorActivity">
+        tools:context="com.example.d062589.partylive.Activities.PartyCreatorActivity">
 
         
     </android.support.design.widget.CoordinatorLayout>

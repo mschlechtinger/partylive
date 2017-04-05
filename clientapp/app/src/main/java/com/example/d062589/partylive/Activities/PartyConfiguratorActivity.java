@@ -1,21 +1,22 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.example.d062589.partylive.R;
+
 /**
  * Created by D062589 on 15.03.2017.
  */
 
-public class PartyCreatorActivity extends AppCompatActivity {
+public class PartyConfiguratorActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_party_creator);
-
+        setContentView(R.layout.activity_party_configurator);
 
     }
 

@@ -1,37 +1,33 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Models;
 
 import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.d062589.partylive.R;
 
 /**
  * Created by D062589 on 10.03.2017.
  */
 
 public class Party extends BaseObservable {
-    private int id;
+    private String _id;
     private boolean publicParty;
     private String title;
     private String imgUrl;
     private String[] guestImgs;
-    private int numberOfGuests;
+    private int guestCount;
     private Organizer organizer;
     private Location location;
+    private String description;
 
     public String getTitle() {
         return title;
     }
 
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    public String get_id() {
+        return _id;
     }
 
     public void setTitle(String title) {
@@ -43,15 +39,14 @@ public class Party extends BaseObservable {
         return imgUrl;
     }
 
-
     // Binding for ImageViews
     @BindingAdapter("android:src")
     public static void setImageUri(ImageView view, String imageUri) {
         //view.setImageURI(Uri.parse(imageUri));
         // TODO: change to use backend information
-        String resource = "android.resource://com.example.d062589.partylive/drawable/" + imageUri;
+        //String resource = "android.resource://com.example.d062589.partylive/drawable/" + imageUri;
         Glide.with(view.getContext())
-                .load(resource)
+                .load(imageUri)
                 .thumbnail(Glide.with(view.getContext())
                         .load(R.drawable.loading_spinner)) //load gif as thumbnail
                 .placeholder(R.drawable.image_placeholder)
@@ -60,8 +55,8 @@ public class Party extends BaseObservable {
     }
 
 
-    public int getNumberOfGuests() {
-        return numberOfGuests;
+    public int getGuestCount() {
+        return guestCount;
     }
 
     public String[] getGuestImgs() {
@@ -78,7 +73,12 @@ public class Party extends BaseObservable {
         return organizer;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public class Organizer {
+        private String id;
         private String name;
         private String imgUrl;
 
@@ -88,6 +88,10 @@ public class Party extends BaseObservable {
 
         public String getImgUrl() {
             return imgUrl;
+        }
+
+        public String getId() {
+            return id;
         }
     }
 
