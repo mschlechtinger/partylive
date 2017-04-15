@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 const authenticationCheck = require('../../authentication/authenticationCheck');
+const admin = require('../../firebase/firebase-connection')
 const EventSchema = require('../../models/event');
 const Account = require('../../models/account');
 
@@ -71,6 +72,7 @@ router.post('/', authenticationCheck, function(req, res) {
 	}
 	var guests = [];
 	var guestIds = [];
+	var deviceIds = [];
 
 	for (var i = body.guests.length - 1; i >= 0; i--) {
 		guestIds.push( new mongoose.Types.ObjectId( body.guests[i] ) );
@@ -90,7 +92,9 @@ router.post('/', authenticationCheck, function(req, res) {
 			}
 			guest.imgUrl = account.imgUrl;
 			guest.status = "Accepted";
-
+			
+			deviceIds.push(account.deviceId); // *** for firebase-Push-Notifications
+			
 			guests.push(guest);
 		}
 		
@@ -111,9 +115,32 @@ router.post('/', authenticationCheck, function(req, res) {
 				console.log(err);
 				return res.status(500).json({error:err.message});
 			}
+			
+			// send push Notifications to all invited clients
+			for (var i = 0; i <= deviceIds.length - 1; i++) {
+				pushEvent(deviceIds[i], req.user.name, body.title, body.startDate);
+			}
 			res.status(201).json(createdEvent);
 		});
 	});
 });
 //exports the router as a node module
 module.exports = router;
+
+
+//*** send Push-Notifications via firebase Notification-Service
+function pushNewEvent(deviceId, organizer, eventName, startDate) {
+	var payload = {
+			"notification" : {
+				"title" : organizer + " lädt dich zu seiner Party ein!",
+				"body" : eventName + " findet " + startDate + " statt. Gib bescheid, ob du teilnimmst."
+			}, 
+	};
+	admin.messaging().sendToDevice(deviceID, payload)
+	.then(function(response) {
+		console.log("Successfully sent message:\n", response);
+	})
+	.catch(function(error) {
+		console.log("Error sending message:", error);
+	});	
+};
