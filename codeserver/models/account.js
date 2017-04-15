@@ -7,7 +7,7 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const nameSchema = new Schema({
 		familyName: String,
 		givenName: String,
-		middleName: String
+		middleName: String,
 		});
 
 const Account = new Schema({
@@ -30,7 +30,8 @@ const Account = new Schema({
 		}
 		},
 	imgUrl: String,
-	lastLoginDate: {type: Date, default: Date.now}
+	lastLoginDate: {type: Date, default: Date.now},
+	deviceId: String //*** DeviceIds for firebase-push-notification
 }, { strict: true });
 
 Account.plugin(passportLocalMongoose, {

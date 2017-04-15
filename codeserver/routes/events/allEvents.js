@@ -76,7 +76,7 @@ router.post('/', authenticationCheck, function(req, res) {
 		guestIds.push( new mongoose.Types.ObjectId( body.guests[i] ) );
 	}
 
-	Account.find({_id: {$in: guestIds}}, 'username name imgUrl', function(err, accounts){
+	Account.find({_id: {$in: guestIds}}, 'username name imgUrl deviceId', function(err, accounts){
 		if(err) return res.status(500).json({error:err.message});
 
 		for (var i = accounts.length - 1; i >= 0; i--) {
