@@ -65,7 +65,7 @@ fileHandler.getFileUrl = function(fileId, userId, fileType) {
 	var token = key.encryptPrivate(requestObject, 'hex');
 	//append token to Url of file server
 
-	var fileUrl = config.fileserverIp + ':' + config.fileserverPort + config.filePath + '/' + token;
+	var fileUrl = config.publicServiceAddress + config.filePath + '/' + token;
 
 	return fileUrl;
 };
