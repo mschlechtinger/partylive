@@ -11,9 +11,8 @@ var key = new NodeRSA();
 key.importKey(config.filePubKey, config.filePubKeyFormat);
 
 //handle requests for path myserver/files
-router.post('/getFile', function(req,res,next){
-	var decryptedContent = key.decryptPublic(req.body.content, 'utf8');
-	console.log("request decrypted:", req.body);
+router.get('/:token', function(req,res,next){
+	var decryptedContent = key.decryptPublic(Buffer(req.params.token,"hex"), 'utf8');
 	var requestObject = JSON.parse(decryptedContent);
 
 	var options = {
@@ -25,7 +24,7 @@ router.post('/getFile', function(req,res,next){
 	    }
 	};
 
-	var fileName = requestObject.id;
+	var fileName = requestObject.id + "." + requestObject.fileType;
 
   res.sendFile(fileName, options, function (err) {
     if (err) {
@@ -37,7 +36,7 @@ router.post('/getFile', function(req,res,next){
 
 });
 
-router.post('/postFile', function(req, res) {
+router.post('/', function(req, res) {
 
   if (!req.files)
     return res.status(400).send('No files were uploaded.');

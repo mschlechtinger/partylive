@@ -6,6 +6,8 @@ const router = express.Router();
 const authenticationCheck = require('../../authentication/authenticationCheck');
 const EventSchema = require('../../models/event');
 const Account = require('../../models/account');
+const fileHandler = require('../../files/fileHandler');
+
 
 //handle request for path myserver/events/
 router.get('/', authenticationCheck, function(req, res) {
@@ -46,20 +48,21 @@ router.get('/', authenticationCheck, function(req, res) {
 				//TODO try to show most relevant users for user
 				outputEvent.guestImgs = [];
 				for (var j = guests.length - 1; j >= 0; j--) {
-					var imgUrl = guests[j].imgUrl;
-					if(outputEvent.guestImgs.length < maxGuestImgs && imgUrl){
-						outputEvent.guestImgs.push(imgUrl);
-					}	
+					if(guests[j].imgUrl){
+						var imgUrl = fileHandler.getFileUrl(guests[j].imgUrl, req.user.id, "jpg");
+						if(outputEvent.guestImgs.length < maxGuestImgs && imgUrl){
+							outputEvent.guestImgs.push(imgUrl);
+						}	
+					}
 				}
 
-				outputEvent.id = currentEvent.id;
+				outputEvent._id = currentEvent.id;
 				outputEvent.title = currentEvent.title;
 				outputEvent.publicEvent = currentEvent.publicEvent;
 				outputEvent.location = currentEvent.location;
-				outputEvent.imgUrl = currentEvent.imgUrl;
-				outputEvent.organizer.id = currentEvent.organizer._id;
-				outputEvent.organizer.imgUrl = currentEvent.organizer.imgUrl;
-				outputEvent.organizer.name = currentEvent.organizer.name;
+				outputEvent.imgUrl = fileHandler.getFileUrl(outputEvent.imgUrl, req.user.id,"jpg");
+				outputEvent.organizer = currentEvent.organizer;
+				outputEvent.organizer.imgUrl = fileHandler.getFileUrl(outputEvent.organizer.imgUrl, req.user.id,"jpg");
 				outputEvents.push(outputEvent);
 			}
 	    	res.status(200).json(outputEvents);

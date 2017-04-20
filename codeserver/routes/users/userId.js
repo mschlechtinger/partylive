@@ -5,16 +5,19 @@ const router = express.Router({mergeParams: true});
 const authenticationCheck = require('../../authentication/authenticationCheck');
 const UserModel = require('../../models/account');
 const fileHandler =require('../../files/fileHandler');
-//distribute request for paths myserver/events/:eventId /guests and /bringItems
+//distribute request for paths myserver/users/:eventId /guests and /bringItems
 //router.use('/guests', require('./guests'));
 //router.use('/bringItems', require('./bringItems'));
 
-//handle request for path myserver/events/:eventId
+//handle request for path myserver/users/:eventId
 router.get('/', authenticationCheck, function(req, res) {
 	UserModel.findById(req.params.userId,'_id name imgUrl', function (err, user) {
 		if(err) return res.status(500).json(err);
 
-    	res.status(200).json(user);
+		var response = user;
+		response.imgUrl = fileHandler.getFileUrl(user.imgUrl, req.params.userId, "jpg");
+
+    	res.status(200).json(response);
 	});
 });
 
@@ -59,7 +62,6 @@ router.put('/image',authenticationCheck, fileHandler.uploadFile, function(req, r
 	    	res.status(204).send();
 	    });
 	});
-
 });
 //exports the router as a node module
 module.exports = router;

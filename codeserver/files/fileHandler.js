@@ -9,7 +9,16 @@ const uuidV4 = require('uuid/v4');
 var key = new NodeRSA();
 key.importKey(config.filePrivKey, config.filePrivKeyFormat);
 
+var key2 = new NodeRSA();
+key2.importKey(config.filePubKey, config.filePubKeyFormat);
+
 var fileHandler = {};
+
+fileHandler.isURL = function(str) {
+     var urlRegex = '^(?!mailto:)(?:(?:http|https|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$';
+     var url = new RegExp(urlRegex, 'i');
+     return str.length < 2083 && url.test(str);
+};
 
 fileHandler.uploadFile = function(req,res,next) {
 
@@ -22,11 +31,11 @@ fileHandler.uploadFile = function(req,res,next) {
     if (err)
       return res.status(500).send(err);
 
-  	//read received file in temporary folder to create ReadStream for form-data
+  	//read received file from temporary folder to create ReadStream for request form-data
 	var formData = {  fileData: fs.createReadStream(__dirname + '/tmp/' + tempName + '.jpg')};
 
 	//send received image to file server
-	request.post({url:'http://'+ config.fileserverIp + ':' + config.fileserverPort + '/postFile', formData: formData}, function(err, httpResponse, body) {
+	request.post({url:'http://'+ config.fileserverIp + ':' + config.fileserverPort + '/', formData: formData}, function(err, httpResponse, body) {
 	  //delete image from temporary folder
 	  fs.unlink(__dirname + '/tmp/' + tempName + '.jpg');
 	  //handle errors
@@ -35,8 +44,6 @@ fileHandler.uploadFile = function(req,res,next) {
 	    return res.status(500).json({error: err.message});
 	  }
 
-	  console.log('File pload successful! Server responded with file id:', body.id);
-	  
 	  //append the id of the uploaded file to the request object
 	  req.uploadedFileId = JSON.parse(body).id;
 	  next();
@@ -44,17 +51,23 @@ fileHandler.uploadFile = function(req,res,next) {
  });
 };
 
-fileHandler.getFileToken = function(fileId, userId) {
+fileHandler.getFileUrl = function(fileId, userId, fileType) {
+	//check if fileId is an Id
+	if(!fileId || fileHandler.isURL(fileId)){
+		return fileId;
+	}
 	//how long can the token be used to retrieve the file
 	var accessExpirationDate = new Date();
 	accessExpirationDate.setTime(accessExpirationDate.getTime() - (8*60*60*1000));
+	//collect request information
+	var requestObject = JSON.stringify({id: fileId, user: userId, fileType: fileType, accessExpirationDate: accessExpirationDate});
+	//encrypt request token with private Key
+	var token = key.encryptPrivate(requestObject, 'hex');
+	//append token to Url of file server
 
-	var requestObject = JSON.stringify({id: fileId, user: userId, accessExpirationDate: accessExpirationDate});
-	
-		var token = key.encryptPrivate(requestObject, 'base64');
+	var fileUrl = config.fileserverIp + ':' + config.fileserverPort + config.filePath + '/' + token;
 
-	return token;
-	
+	return fileUrl;
 };
 
 module.exports = fileHandler;
