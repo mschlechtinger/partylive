@@ -8,7 +8,8 @@ const Account = require('../../models/account');
 //handle request for path myserver/auth/register
 router.post('/', function(req, res) {
   console.log('registering user');
-  Account.register(new Account({username: req.body.username}), req.body.password, function(err, user) {
+  Account.register(new Account({username: req.body.username, deviceId : req.body.deviceId}),
+		  req.body.password, function(err, user) {
     if (err) {
       console.log(err.name, err.message);
       var jsonResponse = {};

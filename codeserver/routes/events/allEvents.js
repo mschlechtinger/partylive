@@ -93,7 +93,9 @@ router.post('/', authenticationCheck, function(req, res) {
 			guest.imgUrl = account.imgUrl;
 			guest.status = "Accepted";
 			
-			deviceIds.push(account.deviceId); // *** for firebase-Push-Notifications
+			if(account.deviceId) {
+				deviceIds.push(account.deviceId); // *** for firebase-Push-Notifications
+			}
 			
 			guests.push(guest);
 		}
@@ -118,7 +120,7 @@ router.post('/', authenticationCheck, function(req, res) {
 			
 			// send push Notifications to all invited clients
 			for (var i = 0; i <= deviceIds.length - 1; i++) {
-				pushEvent(deviceIds[i], req.user.name, body.title, body.startDate);
+				pushNewEvent(deviceIds[i], req.user.name, body.title, body.startDate);
 			}
 			res.status(201).json(createdEvent);
 		});
