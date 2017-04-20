@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -26,7 +25,6 @@ import org.json.JSONObject;
 /**
  * Created by kauppfbi on 23.03.2017.
  */
-
 
 //TODO: automatic change of background image
 //TODO: implementation of google+ login
@@ -45,7 +43,10 @@ public class StartActivity extends AppCompatActivity {
     //Facebook Login
     private CallbackManager callbackManager;
     private LoginButton loginButtonFacebook;
-    private TextView btnLogin;
+    private Button btnLoginFacebook;
+
+    //Google+ Login
+    private Button btnLoginGoogle;
 
     private ProgressDialog progressDialog;
     User user;
@@ -64,8 +65,18 @@ public class StartActivity extends AppCompatActivity {
         loginButton = (Button) findViewById(R.id.btn_login);
         signuUpButton = (Button) findViewById(R.id.btn_signup);
 
-        if (PrefUtils.getCurrentUser(StartActivity.this) != null) {
+        btnLoginGoogle = (Button) findViewById(R.id.btnLoginGoogle);
+        btnLoginGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "not yet implemented!", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        User user = PrefUtils.getCurrentUser(StartActivity.this);
+        if (user != null) {
             Intent homeIntent = new Intent(StartActivity.this, MainActivity.class);
+            homeIntent.putExtra("user", user);
             startActivity(homeIntent);
             finish();
         }
@@ -80,8 +91,8 @@ public class StartActivity extends AppCompatActivity {
 
         loginButtonFacebook.setReadPermissions("public_profile", "email", "user_friends");
 
-        btnLogin = (TextView) findViewById(R.id.btnLogin);
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        btnLoginFacebook = (Button) findViewById(R.id.btnLoginFacebook);
+        btnLoginFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -90,15 +101,10 @@ public class StartActivity extends AppCompatActivity {
                 progressDialog.show();
 
                 loginButtonFacebook.performClick();
-
                 loginButtonFacebook.setPressed(true);
-
                 loginButtonFacebook.invalidate();
-
                 loginButtonFacebook.registerCallback(callbackManager, mCallBack);
-
                 loginButtonFacebook.setPressed(false);
-
                 loginButtonFacebook.invalidate();
 
             }
@@ -127,20 +133,24 @@ public class StartActivity extends AppCompatActivity {
                                 GraphResponse response) {
 
                             Log.e("response: ", response + "");
+                            Log.e("data", object.toString());
                             try {
                                 user = new User();
                                 user.facebookID = object.getString("id").toString();
                                 user.email = object.getString("email").toString();
-                                user.name = object.getString("name").toString();
+                                user.firstName = object.getString("name").toString();
                                 user.gender = object.getString("gender").toString();
                                 PrefUtils.setCurrentUser(user, StartActivity.this);
 
                                 //TODO: send data to backend
+                                final JSONObject data = object;
+
+                                //sendFacebookUserData(data);
 
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            Toast.makeText(StartActivity.this, "welcome " + user.name, Toast.LENGTH_LONG).show();
+                            Toast.makeText(StartActivity.this, "welcome " + user.firstName, Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(StartActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
@@ -174,6 +184,60 @@ public class StartActivity extends AppCompatActivity {
     public void onSignUpPressed(View view) {
         Intent intent = new Intent(StartActivity.this, SignupActivity.class);
         startActivity(intent);
+    }
+
+    private void sendFacebookUserData(final JSONObject response) {
+
+        System.out.println(response);
+//        new android.os.Handler().
+//                post(
+//                        new Runnable() {
+//                            public void run() {
+//                                JSONObject payload = new JSONObject();
+//
+//                                try {
+//                                    payload.put("username", response.getString("email").toString());
+//                                    //payload.put("password", "ayylmao");
+//                                    payload.put("facebook-data", response);
+//                                    //payload.put("username", email);
+//                                    //payload.put("password", password);
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                }
+//
+//                                String path = "/auth/login";
+//
+//                                RestClient.getInstance(getApplicationContext()).post(payload, path, new MyListener<JSONObject>() {
+//                                    @Override
+//                                    public void getResult(JSONObject response) {
+//                                        if (response != null) {
+//                                            // Network & JSON Variables
+//                                            ObjectMapper mapper = new ObjectMapper();
+//                                            String session;
+//                                            String userId;
+//
+//                                            // Get the session cookie & userId
+//                                            try {
+//                                                JsonNode root = mapper.readTree(response.toString());
+//                                                userId = root.get("userId").toString();
+//                                                session = root.at("/headers").get("set-cookie").toString();
+//
+//                                                Log.e(TAG, "userID: " + userId);
+//                                                Log.e(TAG, "session: " + session);
+//
+//                                                //onLoginSuccess(userId, session, progressDialog);
+//
+//                                            } catch (Exception e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                        } else {
+//                                            //onLoginFailed();
+//                                        }
+//                                    }
+//
+//                                });
+//                            }
+//                        });
     }
 
 }

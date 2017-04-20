@@ -5,6 +5,7 @@ import android.databinding.BindingAdapter;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.d062589.partylive.R;
 
 /**
  * Created by D062589 on 10.03.2017.

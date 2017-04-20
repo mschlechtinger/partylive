@@ -76,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setEnabled(false);
 
         final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme);
+                ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordText.getText().toString();
 
         new android.os.Handler().
-                postDelayed(
+                post(
                         new Runnable() {
                             public void run() {
                                 JSONObject payload = new JSONObject();
@@ -120,9 +120,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 Log.e(TAG, "userID: " + userId);
                                                 Log.e(TAG, "session: " + session);
 
-
-                                                progressDialog.dismiss();
-                                                onLoginSuccess(userId, session);
+                                                onLoginSuccess(userId, session, progressDialog);
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -134,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                 });
                             }
-                        }, 1300);
+                        });
 
     }
 
@@ -156,16 +154,19 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void onLoginSuccess(String userId, String session) {
+    public void onLoginSuccess(String userId, String session, ProgressDialog progressDialog) {
         loginButton.setEnabled(true);
-        finish();
+
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.putExtra("userId", userId);
         intent.putExtra("session", session);
         startActivity(intent);
+        progressDialog.dismiss();
+        this.finish();
     }
 
     public void onLoginFailed() {
+        //TODO: Implement logic for failed login here
         Toast.makeText(getBaseContext(), "Login failed! Try it again", Toast.LENGTH_LONG).show();
 
         loginButton.setEnabled(true);

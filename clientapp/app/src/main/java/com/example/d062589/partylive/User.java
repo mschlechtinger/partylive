@@ -1,18 +1,17 @@
 package com.example.d062589.partylive;
 
+import java.io.Serializable;
+
 /**
- * Created by Android on 22-04-2015.
+ * created by kauppfbi
  */
-public class User {
+public class User implements Serializable {
 
-
-    public String name;
-
+    public String userID;
+    public String firstName;
+    public String lastName;
     public String email;
-
-    public String facebookID;
-
     public String gender;
-
-
+    public String facebookID;
+    public String session;
 }
