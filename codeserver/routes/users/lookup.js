@@ -12,9 +12,11 @@ router.post('/', authenticationCheck, function(req, res) {
 		if(err) return res.status(500).json(err);
 		if(!user[0]) return res.status(404).json({error: "No user found with that name"});
 
-		var response = user[0];
-		response.imgUrl = fileHandler.getFileUrl(response.imgUrl, req.user.id, "jpg");
-
+		var response = {};
+		response.name = user[0].name;
+		response.imgUrl = fileHandler.getFileUrl(user[0].imgUrl, req.user.id, "jpg");
+		response._id = user[0].id;
+		
     	res.status(200).json(response);
 	});
 });
