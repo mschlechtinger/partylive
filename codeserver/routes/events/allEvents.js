@@ -79,7 +79,10 @@ router.post('/', authenticationCheck, function(req, res) {
 	var guestIds = [];
 
 	for (var i = body.guests.length - 1; i >= 0; i--) {
-		guestIds.push( new mongoose.Types.ObjectId( body.guests[i] ) );
+		var guest = body.guests[i];
+		if(guest._id){
+			guestIds.push( new mongoose.Types.ObjectId( guest._id ) );
+		}
 	}
 
 	Account.find({_id: {$in: guestIds}}, '_id username name imgUrl', function(err, accounts){
@@ -118,7 +121,7 @@ router.post('/', authenticationCheck, function(req, res) {
 				console.log(err);
 				return res.status(500).json({error: err.message});
 			}
-			res.status(201).json(createdEvent);
+			res.status(201).json({eventId:createdEvent.id});
 		});
 	});
 });
