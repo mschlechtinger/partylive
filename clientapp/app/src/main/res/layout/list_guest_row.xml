@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="75dp"
+    android:id="@+id/recyclerRow"
+    android:padding="@dimen/margin_big">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/guest_img"
+        android:layout_marginStart="@dimen/margin_big">
+
+        <!--guest name-->
+        <TextView
+            android:id="@+id/guest_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/text_size_normal"
+            android:layout_alignParentTop="true"/>
+
+        <!--guest relation-->
+        <com.example.d062589.partylive.Utils.FontAwesome
+            android:id="@+id/guest_relation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textColor="@color/colorText"
+            android:layout_alignParentBottom="true"/>
+
+    </RelativeLayout>
+
+
+    <!--Guest img-->
+    <ImageView
+        android:id="@+id/guest_img"
+
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+
+        android:layout_height="match_parent"
+        android:layout_width="50dp"
+
+        android:contentDescription="@null"
+        android:layout_alignParentStart="true"/>
+</RelativeLayout>

@@ -3,7 +3,7 @@
     <data>
         <variable
             name="party"
-            type="com.example.d062589.partylive.Party"/>
+            type="com.example.d062589.partylive.Models.Party"/>
     </data>
 
 
@@ -19,7 +19,8 @@
             android:layout_weight="0.15"
             app:tabMode="fixed"
             app:tabTextColor="@color/colorText"
-            app:tabSelectedTextColor="@color/colorAccent"/>
+            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabTextAppearance="@style/MyCustomTextAppearance"/>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/viewpager"
@@ -40,9 +41,10 @@
                 android:layout_width="0dp"
                 android:layout_weight="0.5"
                 android:layout_height="match_parent"
-                android:onClick="">
+                android:onClick="stayHome">
 
-                <com.example.d062589.partylive.FontAwesome
+                <com.example.d062589.partylive.Utils.FontAwesome
+                    android:id="@+id/stay_home_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -58,9 +60,10 @@
                 android:layout_width="0dp"
                 android:layout_weight="0.5"
                 android:layout_height="match_parent"
-                android:onClick="">
+                android:onClick="participate">
 
-                <com.example.d062589.partylive.FontAwesome
+                <com.example.d062589.partylive.Utils.FontAwesome
+                    android:id="@+id/participate_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
