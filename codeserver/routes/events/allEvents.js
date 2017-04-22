@@ -6,9 +6,11 @@ const router = express.Router();
 const authenticationCheck = require('../../authentication/authenticationCheck');
 const EventSchema = require('../../models/event');
 const Account = require('../../models/account');
+const fileHandler = require('../../files/fileHandler');
 
 //handle request for path myserver/events/
 router.get('/', authenticationCheck, function(req, res) {
+
 	const maxGuestImgs = 4;
 	//see the events that start in the past eight hours and in the future
 	var visibleFromDate = new Date();
@@ -45,25 +47,28 @@ router.get('/', authenticationCheck, function(req, res) {
 				//TODO try to show most relevant users for user
 				outputEvent.guestImgs = [];
 				for (var j = guests.length - 1; j >= 0; j--) {
-					var imgUrl = guests[j].imgUrl;
-					if(outputEvent.guestImgs.length < maxGuestImgs && imgUrl){
-						outputEvent.guestImgs.push(imgUrl);
-					}	
+					if(guests[j].imgUrl){
+						var imgUrl = fileHandler.getFileUrl(guests[j].imgUrl, req.user.id, "jpg");
+						if(outputEvent.guestImgs.length < maxGuestImgs && imgUrl){
+							outputEvent.guestImgs.push(imgUrl);
+						}	
+					}
 				}
 
 				outputEvent._id = currentEvent.id;
 				outputEvent.title = currentEvent.title;
 				outputEvent.publicEvent = currentEvent.publicEvent;
 				outputEvent.location = currentEvent.location;
-				outputEvent.imgUrl = currentEvent.imgUrl;
-
+				outputEvent.imgUrl = fileHandler.getFileUrl(outputEvent.imgUrl, req.user.id,"jpg");
+				outputEvent.organizer = currentEvent.organizer;
+				outputEvent.organizer.imgUrl = fileHandler.getFileUrl(outputEvent.organizer.imgUrl, req.user.id,"jpg");
 				outputEvents.push(outputEvent);
 			}
 	    	res.status(200).json(outputEvents);
 	});
   });
 
-router.post('/', authenticationCheck, function(req, res) {
+router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res) {
 	var body = req.body;
 	//TODO insert proper input validation here
 	if (!body.title || !body.startDate || !body.location ) {
@@ -71,12 +76,16 @@ router.post('/', authenticationCheck, function(req, res) {
 	}
 	var guests = [];
 	var guestIds = [];
-
-	for (var i = body.guests.length - 1; i >= 0; i--) {
-		guestIds.push( new mongoose.Types.ObjectId( body.guests[i] ) );
+	if(body.guests){
+		for (var i = body.guests.length - 1; i >= 0; i--) {
+			var guest = body.guests[i];
+			if(guest._id){
+				guestIds.push( new mongoose.Types.ObjectId( guest._id ) );
+			}
+		}
 	}
 
-	Account.find({_id: {$in: guestIds}}, 'username name imgUrl', function(err, accounts){
+	Account.find({_id: {$in: guestIds}}, '_id username name imgUrl', function(err, accounts){
 		if(err) return res.status(500).json({error:err.message});
 
 		for (var i = accounts.length - 1; i >= 0; i--) {
@@ -90,6 +99,7 @@ router.post('/', authenticationCheck, function(req, res) {
 			}
 			guest.imgUrl = account.imgUrl;
 			guest.status = "Accepted";
+			guest.guestId = account._id;
 
 			guests.push(guest);
 		}
@@ -99,7 +109,7 @@ router.post('/', authenticationCheck, function(req, res) {
 			startDate: body.startDate,
 			location: body.location,
 			description: body.description,
-			imgUrl: body.imgUrl,
+			imgUrl: req.image,
 			organizer: {_id: req.user.id, name: req.user.name, imgUrl:  req.user.imgUrl},
 			publicEvent: body.publicEvent,
 			guests: guests,
@@ -109,9 +119,9 @@ router.post('/', authenticationCheck, function(req, res) {
 		newEvent.save(function(err, createdEvent){
 			if(err) {
 				console.log(err);
-				return res.status(500).json({error:err.message});
+				return res.status(500).json({error: err.message});
 			}
-			res.status(201).json(createdEvent);
+			res.status(201).json({eventId:createdEvent.id});
 		});
 	});
 });

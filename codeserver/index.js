@@ -9,8 +9,12 @@ const passport = require("passport");
 const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
+const fileUpload = require('express-fileupload');
 
 const app = express();
+
+//Use file handling middleware
+app.use(fileUpload());
 
 // Use native promises
 mongoose.Promise = global.Promise;
