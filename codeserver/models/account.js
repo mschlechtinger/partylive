@@ -13,12 +13,25 @@ const nameSchema = new Schema({
 const Account = new Schema({
 	name: {
 		type: nameSchema,
-		get: name => name.givenName + " " + name.middleName + " " + name.familyName
+		get: function(name){
+			var nameString = "";
+			if(name){
+				if(name.givenName){
+					nameString += name.givenName + " ";
+				}
+				if(name.middleName){
+					nameString += name.middleName + " ";
+				}
+				if(name.familyName){
+					nameString += name.familyName;
+				}
+			}
+			return nameString;
+		}
 		},
-	pictureUrl: String,
-	creationDate: {type: Date, default: Date.now},
+	imgUrl: String,
 	lastLoginDate: {type: Date, default: Date.now}
-});
+}, { strict: true });
 
 Account.plugin(passportLocalMongoose, {
 	userNameField: 'email'
