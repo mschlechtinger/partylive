@@ -5,6 +5,7 @@ const config = require('../config');
 const request = require('request');
 const fs = require('fs');
 const uuidV4 = require('uuid/v4');
+const URLSafeBase64 = require('urlsafe-base64');
 
 var key = new NodeRSA();
 key.importKey(config.filePrivKey, config.filePrivKeyFormat);
@@ -62,10 +63,11 @@ fileHandler.getFileUrl = function(fileId, userId, fileType) {
 	//collect request information
 	var requestObject = JSON.stringify({id: fileId, user: userId, fileType: fileType, accessExpirationDate: accessExpirationDate});
 	//encrypt request token with private Key
-	var token = key.encryptPrivate(requestObject, 'hex');
+	var tokenBuffer = key.encryptPrivate(requestObject, 'buffer');
+	var tokenUrl = URLSafeBase64.encode(tokenBuffer);
 	//append token to Url of file server
 
-	var fileUrl = config.publicServiceAddress + config.filePath + '/' + token;
+	var fileUrl = config.publicServiceAddress + config.filePath + '/' + tokenUrl;
 
 	return fileUrl;
 };

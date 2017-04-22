@@ -14,21 +14,24 @@ const fileHandler = require('../../files/fileHandler');
 router.get('/', authenticationCheck, function(req, res) {
 	EventModel.findById(req.params.eventId, function (err,event) {
 		if(err) return res.status(500).json(err);
-		
+		if(!event) return res.status(404).json({error:"Event not found"});
+
 		var outputEvent = event;
 
 		var guests = event.guests;
 		outputEvent.guestCount = guests.length;
+		
+		if(guests){
+			outputEvent.guests = [];
 
-		outputEvent.guests = [];
-
-		for (var j = guests.length - 1; j >= 0; j--) {
-			var guest = guests[j];
-			if(guest.imgUrl){
-				guest.imgUrl = fileHandler.getFileUrl(guest.imgUrl, req.user.id, "jpg");	
+			for (var j = guests.length - 1; j >= 0; j--) {
+				var guest = guests[j];
+				if(guest.imgUrl){
+					guest.imgUrl = fileHandler.getFileUrl(guest.imgUrl, req.user.id, "jpg");	
+				}
+				outputEvent.guests.push(guest);
 			}
-			outputEvent.guests.push(guest);
-		}
+		}	
 
 		outputEvent._id = event.id;
 		outputEvent.imgUrl = fileHandler.getFileUrl(event.imgUrl, req.user.id,"jpg");

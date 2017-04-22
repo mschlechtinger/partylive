@@ -6,13 +6,15 @@ const router = express.Router();
 const NodeRSA = require('node-rsa');
 const config = require('../config');
 const uuidV4 = require('uuid/v4');
+var URLSafeBase64 = require('urlsafe-base64');
 
 var key = new NodeRSA();
 key.importKey(config.filePubKey, config.filePubKeyFormat);
 
 //handle requests for path myserver/files
 router.get('/:token', function(req,res,next){
-	var decryptedContent = key.decryptPublic(Buffer(req.params.token,"hex"), 'utf8');
+	var tokenBuffer =  URLSafeBase64.decode(req.params.token);
+	var decryptedContent = key.decryptPublic(tokenBuffer, 'utf8');
 	var requestObject = JSON.parse(decryptedContent);
 
 	var options = {
