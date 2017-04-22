@@ -1,6 +1,8 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Utils;
 
 import android.content.Context;
+
+import com.example.d062589.partylive.User;
 
 public class PrefUtils {
 

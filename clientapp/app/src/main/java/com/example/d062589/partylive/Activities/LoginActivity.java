@@ -1,4 +1,4 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.d062589.partylive.R;
+import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.RestClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

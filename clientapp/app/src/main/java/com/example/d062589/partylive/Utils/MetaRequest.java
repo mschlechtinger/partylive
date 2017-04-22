@@ -1,4 +1,4 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Utils;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;

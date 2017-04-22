@@ -1,4 +1,4 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -12,6 +12,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.d062589.partylive.R;
+import com.example.d062589.partylive.User;
+import com.example.d062589.partylive.Utils.PrefUtils;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
