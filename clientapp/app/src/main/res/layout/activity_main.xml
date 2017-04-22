@@ -7,13 +7,13 @@
     <data>
         <variable
             name="party"
-            type="com.example.d062589.partylive.Party"/>
+            type="com.example.d062589.partylive.Models.Party"/>
     </data>
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textColor="@color/colorText"
-        tools:context="com.example.d062589.partylive.MainActivity">
+        tools:context="com.example.d062589.partylive.Activities.MainActivity">
 
 
         <!-- main content layout-->
@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textColor="@color/colorText"
-            tools:context="com.example.d062589.partylive.MainActivity" />
+            tools:context="com.example.d062589.partylive.Activities.MainActivity" />
 
 
 
@@ -41,7 +41,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_big"
+            android:layout_margin="@dimen/margin_very_big"
 
             app:layout_anchor="@+id/layout_bottom_sheet_upper_box"
             app:layout_anchorGravity="top|end"

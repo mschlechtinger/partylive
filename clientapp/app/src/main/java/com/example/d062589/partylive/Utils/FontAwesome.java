@@ -1,6 +1,7 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Utils;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 
@@ -31,5 +32,6 @@ public class FontAwesome extends android.support.v7.widget.AppCompatTextView {
                 "fontawesome-webfont.ttf");
         setTypeface(tf);
     }
+
 
 }

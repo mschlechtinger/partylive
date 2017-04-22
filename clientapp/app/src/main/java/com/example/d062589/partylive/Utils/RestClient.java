@@ -1,8 +1,9 @@
-package com.example.d062589.partylive;
+package com.example.d062589.partylive.Utils;
 
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -85,6 +86,45 @@ public class RestClient {
     }
 
 
+
+    // Post with Cookie & userId
+    public void post(final String userId, final String sessionCookie, JSONObject entity, String path, final MyListener<JSONObject> listener)
+    {
+        String absoluteUrl = PREFIX_URL + path;
+
+        MetaRequest request = new MetaRequest(Request.Method.POST, absoluteUrl, entity, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.d(TAG + ": ", "PostRequest Response : " + response.toString());
+                    if (null != response.toString())
+                        listener.getResult(response);
+                }
+            },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        if (null != error.networkResponse)
+                        {
+                            Log.d(TAG + ": ", "Error Response: " + error.networkResponse);
+                            listener.getResult(null);
+                        }
+                    }
+                })  {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Cookie", sessionCookie);
+                        params.put("userId", userId);
+                        return params;
+                    }
+                };
+        requestQueue.add(request);
+    }
+
+
+
     public void get(final String userId, final String sessionCookie, String path, final MyListener<String> listener)
     {
         String absoluteUrl = PREFIX_URL + path;
@@ -97,8 +137,7 @@ public class RestClient {
                         listener.getResult(response);
                 }
             },
-                new Response.ErrorListener()
-                {
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error)
                     {
@@ -109,16 +148,16 @@ public class RestClient {
                         }
                     }
                 }) {
-            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("userId", userId);
-                params.put("cookie", sessionCookie);
-                return params;
-            }
-        };
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Cookie", sessionCookie);
+                        params.put("userId", userId);
+                        return params;
+                    }
+                };
         requestQueue.add(request);
-    };
-
+    }
 
 
 }

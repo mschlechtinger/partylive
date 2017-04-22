@@ -6,5 +6,7 @@
     <color name="color_bottom_sheet">#222222</color>
     <color name="colorAccent">#F6B300</color>
     <color name="colorText">#FAFAFA</color>
+    <color name="colorApply">#005e27</color>
+    <color name="colorCancel">#990000</color>
 
 </resources>
