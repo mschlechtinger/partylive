@@ -21,7 +21,7 @@ router.get('/', authenticationCheck, function(req, res) {
 	});
 });
 
-router.put('/', authenticationCheck, function(req, res){
+router.put('/', authenticationCheck, fileHandler.uploadImage, function(req, res){
 	    if(req.params.userId !== req.user.id) return res.status(403).json({error: 'Cannot change other users.'});
 	
 	UserModel.findById(req.params.userId, function(err, user){
@@ -33,7 +33,7 @@ router.put('/', authenticationCheck, function(req, res){
 	   
 	    user.name = {"familyName":req.body.name.familyName, "middleName": req.body.name.middleName, "givenName":req.body.name.givenName };
 
-	   	user.imgUrl = req.body.imgUrl;
+	   	user.imgUrl = req.image;
 
 	    user.save(function(err){
 	    	if(err) return res.status(500).json(err);

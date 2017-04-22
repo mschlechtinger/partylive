@@ -20,7 +20,7 @@ router.get('/', authenticationCheck, function(req, res) {
 
 		var guests = event.guests;
 		outputEvent.guestCount = guests.length;
-		
+
 		if(guests){
 			outputEvent.guests = [];
 
@@ -52,7 +52,7 @@ router.delete('/', authenticationCheck, function (req, res) {
   	});
 });
 
-router.put('/', authenticationCheck, function(req, res){
+router.put('/', authenticationCheck, fileHandler.uploadImage, function(req, res){
 	EventModel.findById(req.params.eventId, function(err, event){
 	    if(err) return res.status(500).json(err);
 	    if(!event) return res.status(404).json({error: 'Event not found'});
@@ -63,7 +63,7 @@ router.put('/', authenticationCheck, function(req, res){
 	    event.title = req.body.title;
 	    event.startDate = req.body.startDate;
 	    event.description = req.body.description;
-	    event.imgUrl = req.body.imgUrl;
+	    event.imgUrl = req.image;
 	    event.publicEvent = req.body.publicEvent;
 	    event.location = req.body.location;
 	    event.bringItems = req.body.bringItems;

@@ -21,6 +21,57 @@ fileHandler.isURL = function(str) {
      return str.length < 2083 && url.test(str);
 };
 
+fileHandler.isBase64 = function(str) {
+	var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+
+	return base64regex.test(str);
+};
+fileHandler.uploadImage = function(req,res,next) { 
+	var image = req.body.imgUrl;
+	if(fileHandler.isURL(image)) {
+		req.image = image;
+		next();
+	}
+
+	else {
+		if(fileHandler.isBase64(image)) {
+
+		  var binaryData = new Buffer(image, 'base64').toString('binary');
+
+			let tempName = uuidV4();
+
+			require("fs").writeFile(__dirname + '/tmp/' + tempName + '.jpg', binaryData, "binary", function(err) {
+
+			 	//Handle errors
+			    if (err){
+			 	  console.log(err); // writes out file without error, but it's not a valid image
+			      return res.status(500).send(err.message);
+			    }
+
+			  	//read received file from temporary folder to create ReadStream for request form-data
+				var formData = {  fileData: fs.createReadStream(__dirname + '/tmp/' + tempName + '.jpg')};
+
+				//send received image to file server
+				request.post({url:'http://'+ config.fileserverIp + ':' + config.fileserverPort + '/', formData: formData}, function(err, httpResponse, body) {
+				  //delete image from temporary folder
+				  fs.unlink(__dirname + '/tmp/' + tempName + '.jpg');
+				  //handle errors
+				  if (err) {
+				    console.error('Upload failed:', err);
+				    return res.status(500).json({error: err.message});
+				  }
+
+				  //append the id of the uploaded file to the request object
+				  req.image = JSON.parse(body).id;
+				  next();
+				});
+			});
+		} else{
+			next();
+		}
+	}
+};
+
 fileHandler.uploadFile = function(req,res,next) {
 
  let tempFileData = req.files.fileData;

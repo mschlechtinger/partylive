@@ -8,7 +8,6 @@ const EventSchema = require('../../models/event');
 const Account = require('../../models/account');
 const fileHandler = require('../../files/fileHandler');
 
-
 //handle request for path myserver/events/
 router.get('/', authenticationCheck, function(req, res) {
 
@@ -69,7 +68,7 @@ router.get('/', authenticationCheck, function(req, res) {
 	});
   });
 
-router.post('/', authenticationCheck, function(req, res) {
+router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res) {
 	var body = req.body;
 	//TODO insert proper input validation here
 	if (!body.title || !body.startDate || !body.location ) {
@@ -77,11 +76,12 @@ router.post('/', authenticationCheck, function(req, res) {
 	}
 	var guests = [];
 	var guestIds = [];
-
-	for (var i = body.guests.length - 1; i >= 0; i--) {
-		var guest = body.guests[i];
-		if(guest._id){
-			guestIds.push( new mongoose.Types.ObjectId( guest._id ) );
+	if(body.guests){
+		for (var i = body.guests.length - 1; i >= 0; i--) {
+			var guest = body.guests[i];
+			if(guest._id){
+				guestIds.push( new mongoose.Types.ObjectId( guest._id ) );
+			}
 		}
 	}
 
@@ -109,7 +109,7 @@ router.post('/', authenticationCheck, function(req, res) {
 			startDate: body.startDate,
 			location: body.location,
 			description: body.description,
-			imgUrl: body.imgUrl,
+			imgUrl: req.image,
 			organizer: {_id: req.user.id, name: req.user.name, imgUrl:  req.user.imgUrl},
 			publicEvent: body.publicEvent,
 			guests: guests,
