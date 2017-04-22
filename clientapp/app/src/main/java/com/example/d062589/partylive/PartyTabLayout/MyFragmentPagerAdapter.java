@@ -9,14 +9,16 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
 
+import com.example.d062589.partylive.Models.Party;
 import com.example.d062589.partylive.R;
+import com.example.d062589.partylive.databinding.ActivityMainBinding;
 
 /**
  * Created by D062589 on 21.03.2017.
  */
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 3;
+    private final int PAGE_COUNT = 3;
     private String tabTitles[] = new String[] { "Guestlist", "Bringalong", "Info" };
     private int[] imageResId = {
             R.drawable.ic_people_white_24dp,
@@ -26,6 +28,13 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
 
     private Context context;
+    private Party party;
+
+    public MyFragmentPagerAdapter(FragmentManager fm, Context context, Party party) {
+        super(fm);
+        this.context = context;
+        this.party = party;
+    }
 
     public MyFragmentPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
@@ -40,17 +49,33 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch(position) {
-            case 0:
-                return GuestListFragment.newInstance();
-            case 1:
-                return BringalongListFragment.newInstance();
-            case 3:
-                return InfoListFragment.newInstance();
-            default:
-                return InfoListFragment.newInstance();
+        if (party != null) {
+            switch(position) {
+                case 0:
+                    return GuestListFragment.newInstance(party);
+                case 1:
+                    return BringalongListFragment.newInstance(party);
+                case 2:
+                    return InfoListFragment.newInstance(party);
+                default:
+                    return GuestListFragment.newInstance(party);
+            }
+        } else {
+            switch(position) {
+                case 0:
+                    return GuestListFragment.newInstance();
+                case 1:
+                    return BringalongListFragment.newInstance();
+                case 2:
+                    return InfoListFragment.newInstance();
+                default:
+                    return GuestListFragment.newInstance();
+            }
         }
+
     }
+
+
 
     /**
      * Render TabLayout headers with images

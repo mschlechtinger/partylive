@@ -41,7 +41,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin_big"
+            android:layout_margin="@dimen/margin_very_big"
 
             app:layout_anchor="@+id/layout_bottom_sheet_upper_box"
             app:layout_anchorGravity="top|end"

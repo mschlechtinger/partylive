@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">PARTYlive</string>
     <string name="title_activity_main">PARTYLive</string>
+    <string name="apply_icon">&#xf00c;</string>
+    <string name="cancel_icon">&#xf00d;</string>
+    <string name="increase_icon">&#xf217;</string>
+    <string name="edit_icon">&#xf14b;</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add</string>
+
+    <!--user error messages-->
+    <string name="fill_out_error">Please fill out all the fields.</string>
+
 
     <!-- button text -->
     <string name="button_text_show_bottom_sheet">Show bottom sheet</string>
@@ -27,6 +37,19 @@
     <!-- bottom sheet details -->
     <string name="participate">&#xf256; participate</string>
     <string name="stay_home">&#xf015; stay at home</string>
+    <string name="default_amount_bringalong">1x</string>
+    <string name="location">&#xf05b; location</string>
+    <string name="description">&#xf040; description</string>
+
+    <!--Party Creation & Configuration-->
+    <string name="configure_party">Configure your Party</string>
+
+    <!--Alert Dialog Strings-->
+    <string name="bringalong_add">&#xf217; Add Bringalong Item</string>
+    <string name="guest_add">&#xf234; Invite Guest</string>
+    <string name="info_add">&#xf05a; Add Info</string>
+    <string name="location_icon">&#xf05b;</string>
+
 
 
     <string name="lorem_ipsum">

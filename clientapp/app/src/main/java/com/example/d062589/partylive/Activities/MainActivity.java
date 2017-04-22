@@ -1,5 +1,6 @@
 package com.example.d062589.partylive.Activities;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -7,9 +8,11 @@ import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
@@ -29,13 +32,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.d062589.partylive.Utils.MyListener;
-import com.example.d062589.partylive.Utils.RestClient;
 import com.example.d062589.partylive.Models.Party;
 import com.example.d062589.partylive.PartyTabLayout.MyFragmentPagerAdapter;
 import com.example.d062589.partylive.R;
+import com.example.d062589.partylive.Utils.FontAwesome;
+import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.RestClient;
 import com.example.d062589.partylive.databinding.ActivityMainBinding;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.common.ConnectionResult;
@@ -60,7 +63,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -125,7 +127,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,9 +166,10 @@ public class MainActivity extends AppCompatActivity
         // Create the bottom slide up window
         createBottomSheet();
 
-
         // Instantiate RestClient
         RestClient.getInstance(this);
+
+
     }
 
 
@@ -220,17 +222,23 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                Log.i("BottomSheetCallback", "slideOffset: " + slideOffset);
+                //Log.i("BottomSheetCallback", "slideOffset: " + slideOffset);
             }
         });
 
         mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
+    }
 
+    /**
+     * Creates the viewPager and passes the binding
+     */
+    private void createViewPager(Party party) {
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(2);
         MyFragmentPagerAdapter pagerAdapter =
-                new MyFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+                new MyFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this, party);
         viewPager.setAdapter(pagerAdapter);
 
         // Give the TabLayout the ViewPager
@@ -297,14 +305,21 @@ public class MainActivity extends AppCompatActivity
 
         // Get parties from JSON
         try {
-            /* get parties from local json
-            String partyJson = loadJSON(R.raw.parties_overview);
-            ArrayList<Party> parties = getParties(partyJson);
-
-            // Set markers for parties
-            setPartyLocations(parties);*/
-
             login();
+
+
+            // refreshEvents every x Seconds
+            final Handler h = new Handler();
+            final int delay = 10000; //10 seconds
+
+            h.postDelayed(new Runnable(){
+                public void run(){
+                    //do something
+                    getPartiesFromServer();
+                    //Toast.makeText(context,"refreshed parties", Toast.LENGTH_SHORT).show();
+                    h.postDelayed(this, delay);
+                }
+            }, delay);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -344,8 +359,6 @@ public class MainActivity extends AppCompatActivity
         try {
             Gson gson = new Gson();
             Party party = gson.fromJson(json, Party.class);
-
-            Log.d("TESTTESTTEST",party.getDescription());
 
             return party;
         } catch (Exception e) {
@@ -544,7 +557,6 @@ public class MainActivity extends AppCompatActivity
         Party party = (Party) marker.getTag();
 
 
-
         binding.setParty(party);
         createPartyGuestList(party);
 
@@ -571,7 +583,6 @@ public class MainActivity extends AppCompatActivity
 
         String path = "/auth/login";
 
-
         RestClient.getInstance().post(payload, path, new MyListener<JSONObject>()
         {
             @Override
@@ -583,6 +594,7 @@ public class MainActivity extends AppCompatActivity
                         ObjectMapper mapper = new ObjectMapper();
                         JsonNode root = mapper.readTree(response.toString());
                         userId = root.get("userId").toString();
+
                         sessionCookie = root.at("/headers").get("set-cookie").toString();
 
                         // Remove Quotes
@@ -593,6 +605,8 @@ public class MainActivity extends AppCompatActivity
 
                     } catch(Exception e) {
                         e.printStackTrace();
+                        Toast.makeText(context, "Error while logging in", Toast.LENGTH_SHORT)
+                                .show();
                     }
                 }
             }
@@ -625,12 +639,14 @@ public class MainActivity extends AppCompatActivity
                 if (response != null) {
 
                     Party party = getParty(response);
-                    Log.d("TESTTEST", response);
+                    Log.d("PARTYDETAILS", response);
+
+
                     binding.setParty(party);
 
-                    // fill party object with acquired information
-                    // parse json in jsonobject
-                    // party == responseparty
+                    // create ViewPager in Bottom Sheet with detailed Party information
+                    createViewPager(party);
+
                 }
             }
         });
@@ -664,7 +680,12 @@ public class MainActivity extends AppCompatActivity
 
 
         // Create user icons
-        for ( String img : guestImgs) {
+        for ( int i = 0; i < party.getGuestCount(); i++) {
+            String img = null;
+            if (guestImgs.length != 0) {
+                img = guestImgs[i];
+            }
+
             //create new cardview
             CardView card = new CardView(this);
 
@@ -692,9 +713,7 @@ public class MainActivity extends AppCompatActivity
             //String resource = "android.resource://com.example.d062589.partylive/drawable/" + img;
             Glide.with(imgView.getContext())
                     .load(img)
-                    .thumbnail(Glide.with(imgView.getContext())
-                            .load(R.drawable.loading_spinner)) //load gif as thumbnail
-                    .placeholder(R.drawable.image_placeholder)
+                    .placeholder(R.drawable.user_placeholder)
                     .crossFade()
                     .into(imgView);
 
@@ -816,9 +835,24 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * google maps navigation
-     * @param v view
+     * @param view view
      */
-    private void navigateToParty(View v) {
+    private void navigateToParty(View view) {
         testToast("nav not implemented yet!");
+    }
+
+
+    public void participate(View view) {
+        // TODO: CHECK IF ALREADY PARTICIPATED
+        FontAwesome participate = (FontAwesome) view.findViewById(R.id.participate_text);
+        participate.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+        // TODO: SEND REQUEST & PERSIST
+    }
+
+    public void stayHome(View view) {
+        // TODO: CHECK IF ALREADY PARTICIPATED
+        FontAwesome stayHome = (FontAwesome) view.findViewById(R.id.stay_home_text);
+        stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+        // TODO: SEND REQUEST & PERSIST
     }
 }
