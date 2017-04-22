@@ -12,8 +12,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.d062589.partylive.Models.Person;
 import com.example.d062589.partylive.R;
-import com.example.d062589.partylive.User;
 import com.example.d062589.partylive.Utils.PrefUtils;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -52,7 +52,7 @@ public class StartActivity extends AppCompatActivity {
     private Button btnLoginGoogle;
 
     private ProgressDialog progressDialog;
-    User user;
+    private Person user;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,10 +76,9 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
-        User user = PrefUtils.getCurrentUser(StartActivity.this);
+        Person user = PrefUtils.getCurrentUser(StartActivity.this);
         if (user != null) {
             Intent homeIntent = new Intent(StartActivity.this, MainActivity.class);
-            homeIntent.putExtra("user", user);
             startActivity(homeIntent);
             finish();
         }
@@ -138,22 +137,21 @@ public class StartActivity extends AppCompatActivity {
                             Log.e("response: ", response + "");
                             Log.e("data", object.toString());
                             try {
-                                user = new User();
-                                user.facebookID = object.getString("id").toString();
-                                user.email = object.getString("email").toString();
-                                user.firstName = object.getString("name").toString();
-                                user.gender = object.getString("gender").toString();
+                                String facebookID = object.getString("id").toString();
+                                String email = object.getString("email").toString();
+                                String name = object.getString("name").toString();
+                                String gender = object.getString("gender").toString();
+                                user = new Person(name, null, email, gender, facebookID);
                                 PrefUtils.setCurrentUser(user, StartActivity.this);
 
                                 //TODO: send data to backend
                                 final JSONObject data = object;
-
                                 //sendFacebookUserData(data);
 
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            Toast.makeText(StartActivity.this, "welcome " + user.firstName, Toast.LENGTH_LONG).show();
+                            Toast.makeText(StartActivity.this, "welcome " + user.getName(), Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(StartActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
@@ -191,7 +189,8 @@ public class StartActivity extends AppCompatActivity {
 
     private void sendFacebookUserData(final JSONObject response) {
 
-        System.out.println(response);
+        //Send data to backend and update Person object (set ID)
+        //onSuccessfull Signin
 //        new android.os.Handler().
 //                post(
 //                        new Runnable() {
