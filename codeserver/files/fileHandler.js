@@ -61,7 +61,8 @@ fileHandler.getFileUrl = function(fileId, userId, fileType) {
 	var accessExpirationDate = new Date();
 	accessExpirationDate.setTime(accessExpirationDate.getTime() - (8*60*60*1000));
 	//collect request information
-	var requestObject = JSON.stringify({id: fileId, user: userId, fileType: fileType, accessExpirationDate: accessExpirationDate});
+	//var requestObject = JSON.stringify({id: fileId, user: userId, fileType: fileType, accessExpirationDate: accessExpirationDate});
+	var requestObject = JSON.stringify({id: fileId, fileType: fileType});
 	//encrypt request token with private Key
 	var tokenBuffer = key.encryptPrivate(requestObject, 'buffer');
 	var tokenUrl = URLSafeBase64.encode(tokenBuffer);
