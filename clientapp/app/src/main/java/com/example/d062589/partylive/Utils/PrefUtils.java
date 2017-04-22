@@ -14,7 +14,11 @@ public class PrefUtils {
     }
 
     public static synchronized PrefUtils getInstance(Context context) {
-        instance = new PrefUtils(context);
+        if (instance == null) {
+            instance = new PrefUtils(context);
+        } else {
+            instance.context = context;
+        }
         return instance;
     }
 

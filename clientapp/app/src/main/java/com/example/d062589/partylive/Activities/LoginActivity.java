@@ -1,6 +1,7 @@
 package com.example.d062589.partylive.Activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
@@ -11,8 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.R;
 import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.PrefUtils;
 import com.example.d062589.partylive.Utils.RestClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,10 +31,18 @@ public class LoginActivity extends AppCompatActivity {
     private final static String TAG = LoginActivity.class.getSimpleName();
     private static final int REQUEST_SIGNUP = 0;
 
+    private Context context;
+    private PrefUtils prefUtils;
+
     private TextInputEditText emailText;
     private TextInputEditText passwordText;
     private Button loginButton;
     private TextView signupLink;
+
+
+    //set dev==true to use static login credentials
+    //set dev==false to use text from input fields
+    private boolean dev = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,6 +50,8 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         getSupportActionBar().hide();
+
+        context = getApplicationContext();
 
         emailText = (TextInputEditText) findViewById(R.id.input_email);
         passwordText = (TextInputEditText) findViewById(R.id.input_password);
@@ -62,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //  Start the Signup activity
-                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+                Intent intent = new Intent(context, SignupActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
             }
         });
@@ -84,8 +97,15 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
-        String email = emailText.getText().toString();
-        String password = passwordText.getText().toString();
+        final String email;
+        final String password;
+        if (dev == true) {
+            email = "robefrt.schulzt@wovw.de";
+            password = "ayylmao";
+        } else {
+            email = emailText.getText().toString();
+            password = passwordText.getText().toString();
+        }
 
         new android.os.Handler().
                 post(
@@ -94,18 +114,15 @@ public class LoginActivity extends AppCompatActivity {
                                 JSONObject payload = new JSONObject();
 
                                 try {
-                                    payload.put("username", "robefrt.schulzt@wovw.de");
-                                    payload.put("password", "ayylmao");
-
-                                    //payload.put("username", email);
-                                    //payload.put("password", password);
+                                    payload.put("username", email);
+                                    payload.put("password", password);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
 
                                 String path = "/auth/login";
 
-                                RestClient.getInstance(getApplicationContext()).post(payload, path, new MyListener<JSONObject>() {
+                                RestClient.getInstance(context).post(payload, path, new MyListener<JSONObject>() {
                                     @Override
                                     public void getResult(JSONObject response) {
                                         if (response != null) {
@@ -120,6 +137,10 @@ public class LoginActivity extends AppCompatActivity {
                                                 userId = root.get("userId").toString();
                                                 session = root.at("/headers").get("set-cookie").toString();
 
+                                                // Remove Quotes
+                                                userId = userId.substring(1, userId.length() - 1);
+                                                session = session.substring(1, session.length() - 1);
+
                                                 Log.e(TAG, "userID: " + userId);
                                                 Log.e(TAG, "session: " + session);
 
@@ -129,7 +150,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 e.printStackTrace();
                                             }
                                         } else {
-                                            onLoginFailed();
+                                            onLoginFailed(progressDialog);
                                         }
                                     }
 
@@ -160,18 +181,22 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginSuccess(String userId, String session, ProgressDialog progressDialog) {
         loginButton.setEnabled(true);
 
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.putExtra("userId", userId);
-        intent.putExtra("session", session);
+        prefUtils = PrefUtils.getInstance(context);
+        User user = new User();
+        user.userID = userId;
+        user.session = session;
+        prefUtils.setCurrentUser(user);
+
+        Intent intent = new Intent(context, MainActivity.class);
         startActivity(intent);
         progressDialog.dismiss();
         this.finish();
     }
 
-    public void onLoginFailed() {
+    public void onLoginFailed(ProgressDialog progressDialog) {
         //TODO: Implement logic for failed login here
         Toast.makeText(getBaseContext(), "Login failed! Try it again", Toast.LENGTH_LONG).show();
-
+        progressDialog.dismiss();
         loginButton.setEnabled(true);
     }
 

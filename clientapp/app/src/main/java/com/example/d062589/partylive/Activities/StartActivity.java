@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.example.d062589.partylive.Models.Person;
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.R;
 import com.example.d062589.partylive.Utils.PrefUtils;
 import com.facebook.CallbackManager;
@@ -52,7 +52,7 @@ public class StartActivity extends AppCompatActivity {
     private Button btnLoginGoogle;
 
     private ProgressDialog progressDialog;
-    private Person user;
+    private User user;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,12 +76,13 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
-        Person user = PrefUtils.getCurrentUser(StartActivity.this);
+        user = PrefUtils.getInstance(StartActivity.this).getCurrentUser();
         if (user != null) {
             Intent homeIntent = new Intent(StartActivity.this, MainActivity.class);
             startActivity(homeIntent);
             finish();
         }
+
     }
 
     @Override
@@ -137,12 +138,13 @@ public class StartActivity extends AppCompatActivity {
                             Log.e("response: ", response + "");
                             Log.e("data", object.toString());
                             try {
-                                String facebookID = object.getString("id").toString();
+                                /*user = new User();
+                                user.facebookID = object.getString("id").toString();
                                 String email = object.getString("email").toString();
                                 String name = object.getString("name").toString();
-                                String gender = object.getString("gender").toString();
-                                user = new Person(name, null, email, gender, facebookID);
-                                PrefUtils.setCurrentUser(user, StartActivity.this);
+                                String gender = object.getString("gender").toString();*/
+
+                                //PrefUtils.setCurrentUser(user, StartActivity.this);
 
                                 //TODO: send data to backend
                                 final JSONObject data = object;
@@ -151,7 +153,7 @@ public class StartActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            Toast.makeText(StartActivity.this, "welcome " + user.getName(), Toast.LENGTH_LONG).show();
+                            //Toast.makeText(StartActivity.this, "welcome " + user.name, Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(StartActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();

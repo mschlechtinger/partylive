@@ -31,14 +31,14 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.d062589.partylive.Models.Party;
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.PartyTabLayout.MyFragmentPagerAdapter;
 import com.example.d062589.partylive.R;
 import com.example.d062589.partylive.Utils.FontAwesome;
 import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.PrefUtils;
 import com.example.d062589.partylive.Utils.RestClient;
 import com.example.d062589.partylive.databinding.ActivityMainBinding;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -56,9 +56,6 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.Scanner;
@@ -119,9 +116,12 @@ public class MainActivity extends AppCompatActivity
     private static int MARKER_HEIGHT;
     private Marker activeMarker;
 
-    // Network & JSON Variables
+    // Network variables
     private String sessionCookie;
     private String userId;
+
+    private User currentUser;
+    private PrefUtils prefUtils;
 
 
     @Override
@@ -166,7 +166,10 @@ public class MainActivity extends AppCompatActivity
         // Instantiate RestClient
         RestClient.getInstance(this);
 
-
+        prefUtils = PrefUtils.getInstance(context);
+        currentUser = prefUtils.getCurrentUser();
+        sessionCookie = currentUser.session;
+        userId = currentUser.userID;
     }
 
 
@@ -303,9 +306,6 @@ public class MainActivity extends AppCompatActivity
 
         // Get parties from JSON
         try {
-            login();
-
-
             // refreshEvents every x Seconds
             final Handler h = new Handler();
             final int delay = 10000; //10 seconds
@@ -573,52 +573,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    /**
-     * Login on server and invoke getPartiesFromServer() on successful Login
-     * TODO: Put in Login view and just getInstance() of RestClient instead
-     *
-     * @throws JSONException error while building the payload
-     */
-    public void login() throws JSONException {
-        JSONObject payload = new JSONObject();
-
-        // TODO: Delete hardcoded userdata and use the ones from the user
-        payload.put("username", "michael@schlechtinger.de");
-        payload.put("password", "ayylmao");
-
-        String path = "/auth/login";
-
-        RestClient.getInstance().post(payload, path, new MyListener<JSONObject>() {
-            @Override
-            public void getResult(JSONObject response) {
-                if (response != null) {
-                    // Get the session cookie & userId
-                    try {
-                        ObjectMapper mapper = new ObjectMapper();
-                        JsonNode root = mapper.readTree(response.toString());
-                        userId = root.get("userId").toString();
-
-                        sessionCookie = root.at("/headers").get("set-cookie").toString();
-
-                        // Remove Quotes
-                        userId = userId.substring(1, userId.length() - 1);
-                        sessionCookie = sessionCookie.substring(1, sessionCookie.length() - 1);
-
-                        getPartiesFromServer();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(context, "Error while logging in", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                }
-            }
-
-        });
-    }
-
-
     private void getPartiesFromServer() {
+
         RestClient.getInstance().get(userId, sessionCookie, "/events", new MyListener<String>() {
             @Override
             public void getResult(String response) {
@@ -833,8 +789,6 @@ public class MainActivity extends AppCompatActivity
     public void addParty(View view) {
         Intent intent = new Intent(this, PartyCreatorActivity.class);
         Bundle extras = new Bundle();
-        extras.putString("SESSION_COOKIE", sessionCookie);
-        extras.putString("USER_ID", userId);
         extras.putParcelable("LOCATION", mLastKnownLocation);
         intent.putExtras(extras);
         startActivity(intent);
