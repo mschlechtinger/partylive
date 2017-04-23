@@ -72,7 +72,8 @@
         android:background="#3b5998"
         android:text="FACEBOOK"
         android:textColor="#ffffff"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:enabled="false"/>
     <Button
         android:id="@+id/btnLoginGoogle"
         android:layout_width="fill_parent"
