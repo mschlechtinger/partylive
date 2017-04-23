@@ -13,18 +13,36 @@ const EventSchema = new Schema({
 	guests: [ { guestId: Schema.Types.ObjectId, status: String, name: String, imgUrl: String } ],
 	guestCount: { type: Number, min: 0},
 	startDate: Date,
-	bringItems: [ {title: String, quantity: {type: Number,min: 1}, remaining: {type: Number,min: 0}, assignees: [Schema.Types.ObjectId]} ]
-}, { strict: true });
+	bringItems: [ {
+					title: String, 
+					quantity: {type: Number,min: 1}, 
+					remaining: {type: Number,min: 0}, 
+					assignees: [ { guestId: Schema.Types.ObjectId, amount: Number}] 
+				}]
+	},
+	{ strict: true });
 
 //calculate remaining slots for bringItems
 EventSchema.pre('validate', function (next) {
-    for (var i = this.bringItems.length - 1; i >= 0; i--) {
-    	if(this.bringItems[i].quantity){
-    		this.bringItems[i].remaining = this.bringItems[i].quantity - this.bringItems[i].assignees.length;
+	var bringItems = this.bringItems;
+    for (var i = bringItems.length - 1; i >= 0; i--) {
+    	if(bringItems[i].quantity){
+    		var assignees = bringItems[i].assignees;
+
+    		var remaining = bringItems[i].quantity;
+    		for(var j = assignees.length - 1; j >= 0; j--){
+    			remaining -= assignees[j].amount;
+    		}
+    		this.bringItems[i].remaining = remaining;
     	}	
     }
     next();
 });
+
+//check if a user is either guest or organizer
+EventSchema.methods.isGuest = function(userId) {
+	return this.organizer._id.toString() === userId || !!this.guests.filter(function(guest){return guest.guestId.toString() === userId;})[0];
+};
 
 
 module.exports = mongoose.model('Event', EventSchema);

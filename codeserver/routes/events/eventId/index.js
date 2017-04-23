@@ -2,13 +2,12 @@
 
 const express = require('express');
 const router = express.Router({mergeParams: true});
-const authenticationCheck = require('../../authentication/authenticationCheck');
-const EventModel = require('../../models/event');
-const fileHandler = require('../../files/fileHandler');
+const authenticationCheck = require('../../../authentication/authenticationCheck');
+const EventModel = require('../../../models/event');
+const fileHandler = require('../../../files/fileHandler');
 
 //distribute request for paths myserver/events/:eventId /guests and /bringItems
-//router.use('/guests', require('./guests'));
-//router.use('/bringItems', require('./bringItems'));
+router.use('/bringItems', require('./bringItems'));
 
 //handle request for path myserver/events/:eventId
 router.get('/', authenticationCheck, function(req, res) {
@@ -16,7 +15,7 @@ router.get('/', authenticationCheck, function(req, res) {
 		if(err) return res.status(500).json(err);
 		if(!event) return res.status(404).json({error:"Event not found"});
 
-		var outputEvent = event;
+		var outputEvent = {};
 
 		var guests = event.guests;
 		outputEvent.guestCount = guests.length;
@@ -34,7 +33,14 @@ router.get('/', authenticationCheck, function(req, res) {
 		}	
 
 		outputEvent._id = event.id;
+		outputEvent.title = event.title;
+		outputEvent.description = event.description;
+		outputEvent.location = event.location;
+		outputEvent.publicEvent = event.publicEvent;
+		outputEvent.startDate = event.startDate;
+		outputEvent.isParticipant = event.isGuest(req.user.id);
 		outputEvent.imgUrl = fileHandler.getFileUrl(event.imgUrl, req.user.id,"jpg");
+		outputEvent.organizer = event.organizer;
 		outputEvent.organizer.imgUrl = fileHandler.getFileUrl(event.organizer.imgUrl, req.user.id,"jpg");
 
     	res.status(200).json(outputEvent);
@@ -105,5 +111,23 @@ router.put('/image', authenticationCheck, fileHandler.uploadFile, function(req, 
 	    });
 	});
 });
+
+router.put('/participate', authenticationCheck, function(req, res) {
+		EventModel.findById(req.params.eventId, function(err, event){
+	    if(err) return res.status(500).json(err);
+	    if(!event) return res.status(404).json({error: 'Event not found'});
+	    //if(event.organizer._id.toString() !== req.user.id || user in guests) return res.status(403).json({error: 'Cannot bring items to events you are not a guest of.'});
+
+	    if(!event.isGuest(req.user.id)){
+	    	event.guests.push({guestId: req.user.id, status: "Accepted", imgUrl: req.user.imgUrl, name: req.user.name, username: req.user.username });
+	    }
+	    event.save(function(err){
+	    	if(err) return res.status(500).json(err);
+
+	    	res.status(204).send();
+	    });
+	});
+});
+
 //exports the router as a node module
 module.exports = router;
