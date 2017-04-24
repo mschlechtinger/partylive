@@ -123,7 +123,7 @@ router.put('/participationStatus', authenticationCheck, function(req, res) {
 	    event.save(function(err){
 	    	if(err) return res.status(500).json(err);
 
-	    	res.status(204).send();
+	    	res.status(200).json({"participationStatus":req.body.participationStatus});
 	    });
 	});
 });
