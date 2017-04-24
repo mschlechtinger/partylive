@@ -31,6 +31,7 @@ import com.example.d062589.partylive.Utils.RecyclerTouchListener;
 import com.example.d062589.partylive.Utils.RestClient;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -346,6 +347,7 @@ public class PartyConfiguratorActivity extends AppCompatActivity implements
      * Send Post Request containing the Party to the server
      */
     public void createParty(View view) {
+        newParty.setParticipationStatus(1);
         String partyJson = new Gson().toJson(newParty);
         try {
             JSONObject payload = new JSONObject(partyJson);

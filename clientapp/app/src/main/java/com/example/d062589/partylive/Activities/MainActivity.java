@@ -25,6 +25,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,9 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.Scanner;
@@ -304,11 +308,13 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "Can't find style. Error: ", e);
         }
 
+        getPartiesFromServer();
+
         // Get parties from JSON
         try {
             // refreshEvents every x Seconds
             final Handler h = new Handler();
-            final int delay = 10000; //10 seconds
+            final int delay = 5000; //5 seconds
 
             h.postDelayed(new Runnable() {
                 public void run() {
@@ -402,20 +408,6 @@ public class MainActivity extends AppCompatActivity
                                     MARKER_HEIGHT))));
             marker.setTag(p);
         }
-    }
-
-
-    /**
-     * used for testing instead of console statements
-     * TODO: delete when not required anymore
-     *
-     * @param text characters to be shown in toast
-     */
-    private void testToast(CharSequence text) {
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
     }
 
 
@@ -602,6 +594,20 @@ public class MainActivity extends AppCompatActivity
 
 
                     binding.setParty(party);
+
+                    FontAwesome participate = (FontAwesome) MainActivity.this.findViewById(R.id.participate_text);
+                    FontAwesome stayHome = (FontAwesome) MainActivity.this.findViewById(R.id.stay_home_text);
+
+                    if (party.getParticipationStatus() != 0) {
+                        switch (party.getParticipationStatus()) {
+                            case -1:
+                                participate.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                                stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                            case 1:
+                                stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                                participate.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                        }
+                    }
 
                     // create ViewPager in Bottom Sheet with detailed Party information
                     createViewPager(party);
@@ -800,21 +806,74 @@ public class MainActivity extends AppCompatActivity
      * @param view view
      */
     private void navigateToParty(View view) {
-        testToast("nav not implemented yet!");
+        Toast.makeText(context,"nav not implemented yet!",Toast.LENGTH_SHORT).show();
     }
 
 
-    public void participate(View view) {
-        // TODO: CHECK IF ALREADY PARTICIPATED
-        FontAwesome participate = (FontAwesome) view.findViewById(R.id.participate_text);
-        participate.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
-        // TODO: SEND REQUEST & PERSIST
+    public void participate(View v) {
+
+        final Party party = binding.getParty();
+
+        if (party.getParticipationStatus() != 1) {
+
+            String path = "/events/"+party.get_id()+"/participationStatus";
+
+            JSONObject payload = null;
+            try {
+                payload = new JSONObject("{ \"participationStatus\": \"1\"} }");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            RestClient.getInstance().put(userId, sessionCookie, payload, path, new MyListener<JSONObject>() {
+                @Override
+                public void getResult(JSONObject response) {
+                    if (response != null) {
+                        FontAwesome stayHome = (FontAwesome) MainActivity.this.findViewById(R.id.stay_home_text);
+                        stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                        FontAwesome participate = (FontAwesome) MainActivity.this.findViewById(R.id.participate_text);
+                        participate.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                        party.setParticipationStatus(1);
+                    } else {
+                        System.out.println("error while participating");
+                    }
+                }
+
+            });
+        }
+
     }
 
-    public void stayHome(View view) {
-        // TODO: CHECK IF ALREADY PARTICIPATED
-        FontAwesome stayHome = (FontAwesome) view.findViewById(R.id.stay_home_text);
-        stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
-        // TODO: SEND REQUEST & PERSIST
+    public void stayHome(View v) {
+
+        final Party party = binding.getParty();
+
+        if (party.getParticipationStatus() != -1) {
+
+            String path = "/events/"+party.get_id()+"/participationStatus";
+
+            JSONObject payload = null;
+            try {
+                payload = new JSONObject("{ \"participationStatus\": \"-1\"} }");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            RestClient.getInstance().put(userId, sessionCookie, payload, path, new MyListener<JSONObject>() {
+                @Override
+                public void getResult(JSONObject response) {
+                    if (response != null) {
+                        FontAwesome stayHome = (FontAwesome) MainActivity.this.findViewById(R.id.stay_home_text);
+                        stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                        FontAwesome participate = (FontAwesome) MainActivity.this.findViewById(R.id.participate_text);
+                        participate.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                        party.setParticipationStatus(-1);
+                    } else {
+                        System.out.println("error while participating");
+                    }
+                }
+
+            });
+        }
     }
 }

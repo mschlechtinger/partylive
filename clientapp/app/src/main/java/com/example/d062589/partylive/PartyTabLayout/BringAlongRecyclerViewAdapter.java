@@ -8,10 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.d062589.partylive.Models.Party;
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.R;
+import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.PrefUtils;
+import com.example.d062589.partylive.Utils.RestClient;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by D062589 on 06.04.2017.
@@ -35,6 +43,7 @@ public class BringAlongRecyclerViewAdapter extends RecyclerView.Adapter<BringAlo
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // each data item is just a string in this case
         public Party.BringItem bringItem;
+        public Party party;
 
         private TextView title;
         private TextView remaining;
@@ -49,6 +58,12 @@ public class BringAlongRecyclerViewAdapter extends RecyclerView.Adapter<BringAlo
         int remainingAmount;
 
 
+        PrefUtils prefUtils;
+        User currentUser;
+        String sessionCookie;
+        String userId;
+
+
         /**
          * provides a constructor for the viewholder, initializing all used elements
          * @param view
@@ -56,6 +71,12 @@ public class BringAlongRecyclerViewAdapter extends RecyclerView.Adapter<BringAlo
         public ViewHolder(View view) {
             super(view);
             context = view.getContext();
+
+            prefUtils = PrefUtils.getInstance(context);
+            currentUser = prefUtils.getCurrentUser();
+            sessionCookie = currentUser.session;
+            userId = currentUser.userID;
+
 
 
             title = (TextView) view.findViewById(R.id.title);
@@ -96,7 +117,7 @@ public class BringAlongRecyclerViewAdapter extends RecyclerView.Adapter<BringAlo
                 hideElement(cancel);
                 hideElement(increase);
 
-                amountText.setText(0 + "x");
+                amountText.setText(1 + "x");
 
             }
             if (view.getId() == increase.getId()) {
@@ -115,14 +136,10 @@ public class BringAlongRecyclerViewAdapter extends RecyclerView.Adapter<BringAlo
                 /**
                  * Click on Apply Button within row
                  */
-                // save and post to server
-                amount.setBackgroundColor(ContextCompat.getColor(context, R.color.colorApply));
-
                 // persist amount
                 int counter = Integer.parseInt(amountText.getText().toString().substring(0, amountText.getText().length() - 1));
-                bringItem.setRemaining(bringItem.getRemaining() - counter);
-                persistItem();
-                bringItem.setLocked(true);
+                //bringItem.setRemaining(bringItem.getRemaining() - counter);
+                persistItem(counter, party, amount, remaining);
 
                 // Hide elements
                 hideElement(apply);
@@ -146,9 +163,37 @@ public class BringAlongRecyclerViewAdapter extends RecyclerView.Adapter<BringAlo
         /**
          * Send modified data to server
          */
-        private void persistItem() {
-            // TODO: Do Patch Request with bringitem information
-            Toast.makeText(context, "Item persistet locally", Toast.LENGTH_SHORT);
+        private void persistItem(final int amount, Party party, final RelativeLayout amountLayout, final TextView remaining) {
+            String path = "/events/"+party.get_id()+"/bringItems/"+bringItem.get_id();
+
+            JSONObject payload = null;
+            try {
+                payload = new JSONObject("{ \"amount\": \""+amount+"\"} }");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            RestClient.getInstance().put(userId, sessionCookie, payload, path, new MyListener<JSONObject>() {
+                @Override
+                public void getResult(JSONObject response) {
+                    if (response != null) {
+                        bringItem.setLocked(true);
+
+                        JsonParser parser = new JsonParser();
+                        JsonObject obj = parser.parse(response.toString()).getAsJsonObject();
+                        String newRemaining = obj.get("remaining").getAsString();
+                        bringItem.setRemaining(Integer.parseInt(newRemaining));
+
+                        // save and post to server
+                        amountLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.colorApply));
+                        remaining.setText(newRemaining+" needed");
+
+                    } else {
+                        System.out.println("error while saving your BringAlong Item");
+                    }
+                }
+
+            });
         }
     }
 
@@ -190,12 +235,30 @@ public class BringAlongRecyclerViewAdapter extends RecyclerView.Adapter<BringAlo
     public void onBindViewHolder(ViewHolder holder, int position) {
         Party.BringItem bringItem = party.getBringitems().get(position);
         holder.bringItem = bringItem;
+        holder.party = party;
 
         holder.title.setText(bringItem.getTitle());
 
         int remainingAmount = bringItem.getRemaining();
         holder.remainingAmount = remainingAmount;
         holder.remaining.setText(remainingAmount + " needed");
+
+
+        PrefUtils prefUtils = PrefUtils.getInstance(holder.context);
+        User currentUser = prefUtils.getCurrentUser();
+        String userId = currentUser.userID;
+
+        for (int i = 0; i < bringItem.getAssignees().size(); i++) {
+            if (bringItem.getAssignees().get(i).getGuestId().equals(userId)) {
+                holder.amount.setBackgroundColor(ContextCompat.getColor(holder.context, R.color.colorApply));
+                ViewGroup.LayoutParams amountParams = holder.amount.getLayoutParams();
+                float scale = holder.context.getResources().getDisplayMetrics().density;
+                amountParams.width = (int) (30 * scale + 0.5f);
+                holder.amount.setLayoutParams(amountParams);
+                holder.amountText.setText(bringItem.getAssignees().get(i).getAmount() + "x");
+                bringItem.setLocked(true);
+            }
+        }
     }
 
 

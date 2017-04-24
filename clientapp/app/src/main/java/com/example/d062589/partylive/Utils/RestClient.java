@@ -108,6 +108,38 @@ public class RestClient {
         requestQueue.add(request);
     }
 
+    // Post with Cookie & userId
+    public void put(final String userId, final String sessionCookie, JSONObject entity, String path, final MyListener<JSONObject> listener) {
+        String absoluteUrl = PREFIX_URL + path;
+
+        MetaRequest request = new MetaRequest(Request.Method.PUT, absoluteUrl, entity, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG + ": ", "PostRequest Response : " + response.toString());
+                if (null != response.toString())
+                    listener.getResult(response);
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (null != error.networkResponse) {
+                            Log.d(TAG + ": ", "Error Response: " + error.networkResponse);
+                            listener.getResult(null);
+                        }
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Cookie", sessionCookie);
+                params.put("userId", userId);
+                return params;
+            }
+        };
+        requestQueue.add(request);
+    }
+
 
     public void get(final String userId, final String sessionCookie, String path, final MyListener<String> listener) {
         String absoluteUrl = PREFIX_URL + path;

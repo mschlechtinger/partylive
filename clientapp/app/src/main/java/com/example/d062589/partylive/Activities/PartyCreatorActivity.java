@@ -149,7 +149,7 @@ public class PartyCreatorActivity extends AppCompatActivity {
                 byte[] b = baos.toByteArray();
                 String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
 
-                String resizedImage = resizeBase64Image(encodedImage);
+                resizedImage = resizeBase64Image(encodedImage);
 
                 partyImg.setImageBitmap(bitmap);
                 editIcon.setVisibility(View.VISIBLE);
