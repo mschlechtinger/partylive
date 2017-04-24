@@ -36,6 +36,7 @@ router.get('/', authenticationCheck, function(req, res) {
 		outputEvent.title = event.title;
 		outputEvent.description = event.description;
 		outputEvent.location = event.location;
+		outputEvent.bringItems = event.bringItems;
 		outputEvent.publicEvent = event.publicEvent;
 		outputEvent.startDate = event.startDate;
 		outputEvent.isParticipant = event.isGuest(req.user.id);
