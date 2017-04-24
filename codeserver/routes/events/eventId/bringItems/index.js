@@ -6,7 +6,7 @@ const authenticationCheck = require('../../../../authentication/authenticationCh
 const EventModel = require('../../../../models/event');
 
 //handle Requests for myserver/events/:eventId/bringItems/:itemId
-router.post('/:itemId', authenticationCheck, function(req, res) {
+router.put('/:itemId', authenticationCheck, function(req, res) {
 
 	EventModel.findById(req.params.eventId, function(err, event){
 	    if(err) return res.status(500).json(err);
@@ -20,7 +20,17 @@ router.post('/:itemId', authenticationCheck, function(req, res) {
 
 	    var itemIndex = event.bringItems.indexOf(bringItem);
 
-	    event.bringItems[itemIndex].assignees.push({guestId: req.user.id, amount: req.body.amount});
+	    var assignees = event.bringItems[itemIndex].assignees;
+	    
+	    var assignedUser = assignees.filter(function(assignee){return assignee.guestId.toString() === req.user.id;})[0];
+	    if(!assignedUser){
+	    	assignees.push({guestId: req.user.id, amount: req.body.amount});
+	    }else{
+	    	var assignedUserIndex = assignees.indexOf(assignedUser);
+	    	assignees[assignedUserIndex].amount = req.body.amount;
+	    }
+
+
 	    event.save(function(err){
 	    	if(err) return res.status(500).json(err);
 
