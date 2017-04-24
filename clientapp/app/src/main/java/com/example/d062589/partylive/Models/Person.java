@@ -1,9 +1,5 @@
 package com.example.d062589.partylive.Models;
 
-/**
- * Created by D062589 on 13.04.2017.
- */
-
 public class Person {
 
     private String _id;

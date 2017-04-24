@@ -15,9 +15,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.d062589.partylive.Models.Party;
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.R;
 import com.example.d062589.partylive.Utils.FontAwesome;
 import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.PrefUtils;
 import com.example.d062589.partylive.Utils.RestClient;
 import com.google.gson.Gson;
 
@@ -36,6 +38,8 @@ import java.util.Date;
 
 public class PartyCreatorActivity extends AppCompatActivity {
 
+    private PrefUtils prefUtils;
+    private User user;
     private String sessionCookie;
     private String userId;
     private Location mLastKnownLocation;
@@ -49,6 +53,7 @@ public class PartyCreatorActivity extends AppCompatActivity {
 
     /**
      * Hide Navbar and Statusbar for Fullscreen Map
+     *
      * @param hasFocus
      */
     @Override
@@ -73,8 +78,6 @@ public class PartyCreatorActivity extends AppCompatActivity {
         // Get Intent information from Map Screen
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            sessionCookie = extras.getString("SESSION_COOKIE");
-            userId = extras.getString("USER_ID");
             mLastKnownLocation = extras.getParcelable("LOCATION");
         }
 
@@ -84,6 +87,11 @@ public class PartyCreatorActivity extends AppCompatActivity {
         if (party == null) {
             party = new Party();
         }
+
+        prefUtils = PrefUtils.getInstance(getApplicationContext());
+        user = prefUtils.getCurrentUser();
+        sessionCookie = user.session;
+        userId = user.userID;
     }
 
 
@@ -94,25 +102,25 @@ public class PartyCreatorActivity extends AppCompatActivity {
     }
 
 
-    public String resizeBase64Image(String base64image){
+    public String resizeBase64Image(String base64image) {
         int IMG_WIDTH = 150;
         int IMG_HEIGHT = 200;
 
-        byte [] encodeByte=Base64.decode(base64image.getBytes(),Base64.DEFAULT);
-        BitmapFactory.Options options=new BitmapFactory.Options();
+        byte[] encodeByte = Base64.decode(base64image.getBytes(), Base64.DEFAULT);
+        BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPurgeable = true;
-        Bitmap image = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length,options);
+        Bitmap image = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length, options);
 
 
-        if(image.getHeight() <= 400 && image.getWidth() <= 400){
+        if (image.getHeight() <= 400 && image.getWidth() <= 400) {
             return base64image;
         }
         image = Bitmap.createScaledBitmap(image, IMG_WIDTH, IMG_HEIGHT, false);
 
-        ByteArrayOutputStream baos=new  ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.PNG,100, baos);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG, 100, baos);
 
-        byte [] b=baos.toByteArray();
+        byte[] b = baos.toByteArray();
         System.gc();
         return Base64.encodeToString(b, Base64.NO_WRAP);
 
@@ -120,16 +128,17 @@ public class PartyCreatorActivity extends AppCompatActivity {
 
     /**
      * This code is being called after the image has been uploaded
+     *
      * @param requestCode code
-     * @param resultCode successful/ failure
-     * @param data base64 data of the img
+     * @param resultCode  successful/ failure
+     * @param data        base64 data of the img
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
             Bitmap bitmap;
             try {
@@ -140,7 +149,7 @@ public class PartyCreatorActivity extends AppCompatActivity {
                 byte[] b = baos.toByteArray();
                 String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
 
-                String resizedImage = resizeBase64Image(encodedImage);
+                resizedImage = resizeBase64Image(encodedImage);
 
                 partyImg.setImageBitmap(bitmap);
                 editIcon.setVisibility(View.VISIBLE);
@@ -158,16 +167,14 @@ public class PartyCreatorActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, PartyConfiguratorActivity.class);
             Bundle extras = new Bundle();
-            extras.putString("SESSION_COOKIE",sessionCookie);
-            extras.putString("USER_ID",userId);
-            extras.putParcelable("LOCATION",mLastKnownLocation);
+            extras.putParcelable("LOCATION", mLastKnownLocation);
 
             party.setTitle(partyName.getText().toString());
             if (resizedImage != null) {
                 party.setImgUrl(resizedImage);
             }
             String partyJson = new Gson().toJson(party);
-            extras.putString("PARTY_JSON",partyJson);
+            extras.putString("PARTY_JSON", partyJson);
             intent.putExtras(extras);
             startActivity(intent);
         } else {
@@ -227,12 +234,10 @@ public class PartyCreatorActivity extends AppCompatActivity {
         bringItems.put(bringItem2);
         payload.put("bringItems", bringItems);
 
-        RestClient.getInstance().post(userId, sessionCookie, payload, "/events", new MyListener<JSONObject>()
-        {
+        RestClient.getInstance().post(userId, sessionCookie, payload, "/events", new MyListener<JSONObject>() {
             @Override
             public void getResult(JSONObject response) {
-                if (response != null)
-                {
+                if (response != null) {
                     Toast.makeText(context, "Sample Party created at your position!", Toast.LENGTH_LONG).show();
                 }
             }

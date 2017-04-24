@@ -1,6 +1,5 @@
 package com.example.d062589.partylive.Activities;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,7 +7,6 @@ import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Bundle;
@@ -27,20 +25,21 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.d062589.partylive.Models.Party;
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.PartyTabLayout.MyFragmentPagerAdapter;
 import com.example.d062589.partylive.R;
 import com.example.d062589.partylive.Utils.FontAwesome;
 import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.PrefUtils;
 import com.example.d062589.partylive.Utils.RestClient;
 import com.example.d062589.partylive.databinding.ActivityMainBinding;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -71,9 +70,9 @@ import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback,
-            GoogleApiClient.ConnectionCallbacks,
-            GoogleApiClient.OnConnectionFailedListener,
-            GoogleMap.OnMarkerClickListener {
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleMap.OnMarkerClickListener {
 
 
     //google maps variables
@@ -121,10 +120,12 @@ public class MainActivity extends AppCompatActivity
     private static int MARKER_HEIGHT;
     private Marker activeMarker;
 
-    // Network & JSON Variables
+    // Network variables
     private String sessionCookie;
     private String userId;
 
+    private User currentUser;
+    private PrefUtils prefUtils;
 
 
     @Override
@@ -169,13 +170,16 @@ public class MainActivity extends AppCompatActivity
         // Instantiate RestClient
         RestClient.getInstance(this);
 
-
+        prefUtils = PrefUtils.getInstance(context);
+        currentUser = prefUtils.getCurrentUser();
+        sessionCookie = currentUser.session;
+        userId = currentUser.userID;
     }
-
 
 
     /**
      * Hide Navbar and Statusbar for Fullscreen Map
+     *
      * @param hasFocus
      */
     @Override
@@ -188,7 +192,8 @@ public class MainActivity extends AppCompatActivity
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);}
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
 
 
@@ -303,17 +308,16 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "Can't find style. Error: ", e);
         }
 
+        getPartiesFromServer();
+
         // Get parties from JSON
         try {
-            login();
-
-
             // refreshEvents every x Seconds
             final Handler h = new Handler();
-            final int delay = 10000; //10 seconds
+            final int delay = 5000; //5 seconds
 
-            h.postDelayed(new Runnable(){
-                public void run(){
+            h.postDelayed(new Runnable() {
+                public void run() {
                     //do something
                     getPartiesFromServer();
                     //Toast.makeText(context,"refreshed parties", Toast.LENGTH_SHORT).show();
@@ -332,6 +336,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Gets parties from input Json
+     *
      * @param json party object as json string
      * @return returns an ArrayList with all party objects within the json
      */
@@ -340,7 +345,7 @@ public class MainActivity extends AppCompatActivity
             Gson gson = new Gson();
             Party[] parties = gson.fromJson(json, Party[].class);
 
-            for (Party p:parties) {
+            for (Party p : parties) {
                 Log.d("ACTIVE_PARTIES", p.getTitle());
             }
             return parties;
@@ -352,6 +357,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Gets parties from input Json
+     *
      * @param json party object as json string
      * @return returns an ArrayList with all party objects within the json
      */
@@ -370,6 +376,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * load local JSON File from RAW and return it as a string value
+     *
      * @param file the JSON file as a value (e.g. R.raw.parties)
      * @return JSON as a String value
      */
@@ -378,7 +385,7 @@ public class MainActivity extends AppCompatActivity
         InputStream is = res.openRawResource(file);
         Scanner scanner = new Scanner(is);
         StringBuilder builder = new StringBuilder();
-        while(scanner.hasNextLine()) {
+        while (scanner.hasNextLine()) {
             builder.append(scanner.nextLine());
         }
         return builder.toString();
@@ -388,7 +395,7 @@ public class MainActivity extends AppCompatActivity
      * set markers for parties
      */
     private void setPartyLocations(Party[] parties) {
-        for (Party p:parties) {
+        for (Party p : parties) {
 
             LatLng partyLocation = new LatLng(p.getLocation().getLatitude(), p.getLocation().getLongitude());
 
@@ -401,19 +408,6 @@ public class MainActivity extends AppCompatActivity
                                     MARKER_HEIGHT))));
             marker.setTag(p);
         }
-    }
-
-
-    /**
-     * used for testing instead of console statements
-     * TODO: delete when not required anymore
-     * @param text characters to be shown in toast
-     */
-    private void testToast(CharSequence text) {
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
     }
 
 
@@ -508,12 +502,13 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Takes a drawable icon resource, converts it to a bitmap and resizes it
+     *
      * @param iconResource R.drawable resource
-     * @param width the width of the outcoming bitmap
-     * @param height the height of the outcoming bitmap
+     * @param width        the width of the outcoming bitmap
+     * @param height       the height of the outcoming bitmap
      * @return the resized bitmap
      */
-    public Bitmap resizeMapIcons(int iconResource, int width, int height){
+    public Bitmap resizeMapIcons(int iconResource, int width, int height) {
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), iconResource);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
         return resizedBitmap;
@@ -521,6 +516,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Handles clicks on map marker
+     *
      * @param marker map marker
      */
     @Override
@@ -569,53 +565,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    /**
-     * Login on server and invoke getPartiesFromServer() on successful Login
-     * TODO: Put in Login view and just getInstance() of RestClient instead
-     * @throws JSONException error while building the payload
-     */
-    public void login() throws JSONException {
-        JSONObject payload = new JSONObject();
-
-        // TODO: Delete hardcoded userdata and use the ones from the user
-        payload.put("username", "michael@schlechtinger.de");
-        payload.put("password", "ayylmao");
-
-        String path = "/auth/login";
-
-        RestClient.getInstance().post(payload, path, new MyListener<JSONObject>()
-        {
-            @Override
-            public void getResult(JSONObject response) {
-                if (response != null)
-                {
-                    // Get the session cookie & userId
-                    try {
-                        ObjectMapper mapper = new ObjectMapper();
-                        JsonNode root = mapper.readTree(response.toString());
-                        userId = root.get("userId").toString();
-
-                        sessionCookie = root.at("/headers").get("set-cookie").toString();
-
-                        // Remove Quotes
-                        userId = userId.substring(1, userId.length() - 1);
-                        sessionCookie = sessionCookie.substring(1, sessionCookie.length() - 1);
-
-                        getPartiesFromServer();
-
-                    } catch(Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(context, "Error while logging in", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                }
-            }
-
-        });
-    }
-
-
     private void getPartiesFromServer() {
+
         RestClient.getInstance().get(userId, sessionCookie, "/events", new MyListener<String>() {
             @Override
             public void getResult(String response) {
@@ -644,6 +595,20 @@ public class MainActivity extends AppCompatActivity
 
                     binding.setParty(party);
 
+                    FontAwesome participate = (FontAwesome) MainActivity.this.findViewById(R.id.participate_text);
+                    FontAwesome stayHome = (FontAwesome) MainActivity.this.findViewById(R.id.stay_home_text);
+
+                    if (party.getParticipationStatus() != 0) {
+                        switch (party.getParticipationStatus()) {
+                            case -1:
+                                participate.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                                stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                            case 1:
+                                stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                                participate.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                        }
+                    }
+
                     // create ViewPager in Bottom Sheet with detailed Party information
                     createViewPager(party);
 
@@ -655,6 +620,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Creates the preview for the party guests within the Bottom Sheet
+     *
      * @param party
      */
     private void createPartyGuestList(Party party) {
@@ -680,7 +646,7 @@ public class MainActivity extends AppCompatActivity
 
 
         // Create user icons
-        for ( int i = 0; i < party.getGuestCount(); i++) {
+        for (int i = 0; i < party.getGuestCount(); i++) {
             String img = null;
             if (guestImgs.length != 0) {
                 img = guestImgs[i];
@@ -757,7 +723,7 @@ public class MainActivity extends AppCompatActivity
         // Styling and positioning
         text.setTextColor(ContextCompat.getColor(context, R.color.colorText));
         text.setTextSize(getResources().getDimension(R.dimen.text_size_supertiny) /
-                        getResources().getDisplayMetrics().density);
+                getResources().getDisplayMetrics().density);
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -775,13 +741,15 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Hide bottom sheet when clicked outside
+     *
      * @param event used to get the tapevent (ACTION_DOWN)
      * @return
      */
-    @Override public boolean dispatchTouchEvent(MotionEvent event){
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED ||
-                mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                    mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
 
                 //get BottomSheet measures
                 Rect outRect = new Rect();
@@ -791,7 +759,7 @@ public class MainActivity extends AppCompatActivity
 
 
                 // If touch is outside of BottomSheet
-                if(!outRect.contains((int)event.getRawX(), (int)event.getRawY()+fabOverlap)) {
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY() + fabOverlap)) {
                     // Clean programmatically created user images
                     userIconsLayout.removeAllViews();
 
@@ -821,38 +789,91 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * add party on floatingActionButton click
+     *
      * @param view current view
      */
     public void addParty(View view) {
         Intent intent = new Intent(this, PartyCreatorActivity.class);
         Bundle extras = new Bundle();
-        extras.putString("SESSION_COOKIE",sessionCookie);
-        extras.putString("USER_ID",userId);
-        extras.putParcelable("LOCATION",mLastKnownLocation);
+        extras.putParcelable("LOCATION", mLastKnownLocation);
         intent.putExtras(extras);
         startActivity(intent);
     }
 
     /**
      * google maps navigation
+     *
      * @param view view
      */
     private void navigateToParty(View view) {
-        testToast("nav not implemented yet!");
+        Toast.makeText(context,"nav not implemented yet!",Toast.LENGTH_SHORT).show();
     }
 
 
-    public void participate(View view) {
-        // TODO: CHECK IF ALREADY PARTICIPATED
-        FontAwesome participate = (FontAwesome) view.findViewById(R.id.participate_text);
-        participate.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
-        // TODO: SEND REQUEST & PERSIST
+    public void participate(View v) {
+
+        final Party party = binding.getParty();
+
+        if (party.getParticipationStatus() != 1) {
+
+            String path = "/events/"+party.get_id()+"/participationStatus";
+
+            JSONObject payload = null;
+            try {
+                payload = new JSONObject("{ \"participationStatus\": \"1\"} }");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            RestClient.getInstance().put(userId, sessionCookie, payload, path, new MyListener<JSONObject>() {
+                @Override
+                public void getResult(JSONObject response) {
+                    if (response != null) {
+                        FontAwesome stayHome = (FontAwesome) MainActivity.this.findViewById(R.id.stay_home_text);
+                        stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                        FontAwesome participate = (FontAwesome) MainActivity.this.findViewById(R.id.participate_text);
+                        participate.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                        party.setParticipationStatus(1);
+                    } else {
+                        System.out.println("error while participating");
+                    }
+                }
+
+            });
+        }
+
     }
 
-    public void stayHome(View view) {
-        // TODO: CHECK IF ALREADY PARTICIPATED
-        FontAwesome stayHome = (FontAwesome) view.findViewById(R.id.stay_home_text);
-        stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
-        // TODO: SEND REQUEST & PERSIST
+    public void stayHome(View v) {
+
+        final Party party = binding.getParty();
+
+        if (party.getParticipationStatus() != -1) {
+
+            String path = "/events/"+party.get_id()+"/participationStatus";
+
+            JSONObject payload = null;
+            try {
+                payload = new JSONObject("{ \"participationStatus\": \"-1\"} }");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            RestClient.getInstance().put(userId, sessionCookie, payload, path, new MyListener<JSONObject>() {
+                @Override
+                public void getResult(JSONObject response) {
+                    if (response != null) {
+                        FontAwesome stayHome = (FontAwesome) MainActivity.this.findViewById(R.id.stay_home_text);
+                        stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
+                        FontAwesome participate = (FontAwesome) MainActivity.this.findViewById(R.id.participate_text);
+                        participate.setTextColor(ContextCompat.getColor(context, R.color.colorText));
+                        party.setParticipationStatus(-1);
+                    } else {
+                        System.out.println("error while participating");
+                    }
+                }
+
+            });
+        }
     }
 }

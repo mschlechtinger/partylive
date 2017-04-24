@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/start1"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:weightSum="10">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        android:text="@string/app_name"
+        android:textSize="48dp"
+        android:textStyle="bold" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btn_login"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:background="@color/colorAccent"
+        android:drawableStart="@drawable/ic_exit_to_app_black_24dp"
+        android:onClick="onLoginPressed"
+        android:text=" LOGIN"
+        android:textAlignment="center"
+        android:textStyle="bold" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btn_signup"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginTop="0dp"
+        android:background="@color/colorAccent"
+        android:clickable="false"
+        android:drawableStart="@drawable/ic_person_add_black_24dp"
+        android:enabled="false"
+        android:onClick="onSignUpPressed"
+        android:text=" SIGN UP"
+        android:textAlignment="center"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="or connect with"
+        android:textAlignment="center" />
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/btn_login_facebook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btnLoginFacebook"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:background="#3b5998"
+        android:text="FACEBOOK"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        android:enabled="false"/>
+    <Button
+        android:id="@+id/btnLoginGoogle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="24dp"
+        android:layout_marginLeft="24dp"
+        android:background="#d34836"
+        android:text="GOOGLE+"
+        android:textColor="#ffffff"
+        android:textStyle="bold" />
+</LinearLayout>

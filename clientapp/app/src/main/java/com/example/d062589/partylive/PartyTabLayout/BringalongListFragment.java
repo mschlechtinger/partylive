@@ -15,9 +15,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.d062589.partylive.Models.Party;
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.R;
+import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.PrefUtils;
 import com.example.d062589.partylive.Utils.RecyclerClickListener;
 import com.example.d062589.partylive.Utils.RecyclerTouchListener;
+import com.example.d062589.partylive.Utils.RestClient;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -135,18 +144,52 @@ public class BringalongListFragment extends Fragment {
                 }
 
                 @Override
-                public void onLongClick(View view, int position) {
+                public void onLongClick(final View view, final int position) {
 
-                    if (party.getBringitems().get(position).isLocked()) {
+                    final Party.BringItem bringitem = party.getBringitems().get(position);
+                    if (bringitem.isLocked()) {
                         Vibrator vibe = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
                         vibe.vibrate(50);
 
-                        TextView amountText = (TextView) view.findViewById(R.id.amountText);
-                        amountText.setText("1x");
-                        BringAlongRecyclerViewAdapter.ViewHolder.hideElement(amount);
-                        amount.setBackgroundColor(ContextCompat.getColor(context, R.color.colorAccent));
+                        PrefUtils prefUtils = PrefUtils.getInstance(context);
+                        User currentUser = prefUtils.getCurrentUser();
+                        String sessionCookie = currentUser.session;
+                        String userId = currentUser.userID;
 
-                        // TODO: new post request
+                        String path = "/events/"+party.get_id()+"/bringItems/"+bringitem.get_id();
+
+                        JSONObject payload = null;
+                        try {
+                            payload = new JSONObject("{ \"amount\": \""+0+"\"} }");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        RestClient.getInstance().put(userId, sessionCookie, payload, path, new MyListener<JSONObject>() {
+                            @Override
+                            public void getResult(JSONObject response) {
+                                if (response != null) {
+                                    bringitem.setLocked(false);
+
+                                    JsonParser parser = new JsonParser();
+                                    JsonObject obj = parser.parse(response.toString()).getAsJsonObject();
+                                    String newRemaining = obj.get("remaining").getAsString();
+                                    bringitem.setRemaining(Integer.parseInt(newRemaining));
+
+                                    TextView amountText = (TextView) view.findViewById(R.id.amountText);
+                                    amountText.setText("1x");
+                                    BringAlongRecyclerViewAdapter.ViewHolder.hideElement(amount);
+                                    amount.setBackgroundColor(ContextCompat.getColor(context, R.color.colorAccent));
+
+                                    TextView remaining = (TextView) view.findViewById(R.id.needed);
+                                    remaining.setText(newRemaining+" needed");
+
+                                } else {
+                                    System.out.println("error while saving your BringAlong Item");
+                                }
+                            }
+
+                        });
 
 
                         party.getBringitems().get(position).setLocked(false);

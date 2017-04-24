@@ -12,10 +12,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.d062589.partylive.Models.Party;
+import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.PartyTabLayout.BringalongAddFragment;
 import com.example.d062589.partylive.PartyTabLayout.BringalongListFragment;
 import com.example.d062589.partylive.PartyTabLayout.GuestAddFragment;
@@ -25,11 +25,13 @@ import com.example.d062589.partylive.PartyTabLayout.InfoListFragment;
 import com.example.d062589.partylive.PartyTabLayout.MyFragmentPagerAdapter;
 import com.example.d062589.partylive.R;
 import com.example.d062589.partylive.Utils.MyListener;
+import com.example.d062589.partylive.Utils.PrefUtils;
 import com.example.d062589.partylive.Utils.RecyclerClickListener;
 import com.example.d062589.partylive.Utils.RecyclerTouchListener;
 import com.example.d062589.partylive.Utils.RestClient;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,6 +47,8 @@ public class PartyConfiguratorActivity extends AppCompatActivity implements
         GuestAddFragment.GuestDialogListener,
         InfoAddFragment.InfoDialogListener {
 
+    private PrefUtils prefUtils;
+    private User user;
     private String sessionCookie;
     private String userId;
     private Location mLastKnownLocation;
@@ -82,8 +86,6 @@ public class PartyConfiguratorActivity extends AppCompatActivity implements
         // Get Intent information from Map Screen
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            sessionCookie = extras.getString("SESSION_COOKIE");
-            userId = extras.getString("USER_ID");
             mLastKnownLocation = extras.getParcelable("LOCATION");
             Gson gson = new Gson();
             newParty = gson.fromJson(extras.getString("PARTY_JSON"), Party.class);
@@ -97,6 +99,11 @@ public class PartyConfiguratorActivity extends AppCompatActivity implements
         if (newParty == null) {
             newParty = new Party();
         }
+
+        prefUtils = PrefUtils.getInstance(getApplicationContext());
+        user = prefUtils.getCurrentUser();
+        sessionCookie = user.session;
+        userId = user.userID;
     }
 
     /**
@@ -340,6 +347,7 @@ public class PartyConfiguratorActivity extends AppCompatActivity implements
      * Send Post Request containing the Party to the server
      */
     public void createParty(View view) {
+        newParty.setParticipationStatus(1);
         String partyJson = new Gson().toJson(newParty);
         try {
             JSONObject payload = new JSONObject(partyJson);

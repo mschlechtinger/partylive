@@ -25,6 +25,7 @@ public class Party extends BaseObservable {
     private String description;
     private ArrayList<BringItem> bringItems = new ArrayList<>();
     private ArrayList<Guest> guests = new ArrayList<>();
+    private int participationStatus;
 
     public String getTitle() {
         return title;
@@ -46,9 +47,6 @@ public class Party extends BaseObservable {
     // Binding for ImageViews
     @BindingAdapter("android:src")
     public static void setImageUri(ImageView view, String imageUri) {
-        //view.setImageURI(Uri.parse(imageUri));
-        // TODO: change to use backend information
-        //String resource = "android.resource://com.example.d062589.partylive/drawable/" + imageUri;
         Glide.with(view.getContext())
                 .load(imageUri)
                 .placeholder(R.drawable.image_placeholder)
@@ -89,6 +87,15 @@ public class Party extends BaseObservable {
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
+
+    public int getParticipationStatus() {
+        return participationStatus;
+    }
+
+    public void setParticipationStatus(int participationStatus) {
+        this.participationStatus = participationStatus;
+    }
+
 
     public class Organizer extends Person {
         public Organizer(String name, String imgUrl, String username) {
@@ -147,7 +154,7 @@ public class Party extends BaseObservable {
         private String title;
         private int quantity;
         private String _id;
-        private String[] assignees;
+        private ArrayList<Assignee> assignees = new ArrayList<>();
         private boolean locked;
 
         public BringItem(String title, int quantity, int remaining) {
@@ -172,9 +179,6 @@ public class Party extends BaseObservable {
             return _id;
         }
 
-        public String[] getAssignees() {
-            return assignees;
-        }
 
         public void setRemaining(int remaining) {
             this.remaining = remaining;
@@ -187,8 +191,45 @@ public class Party extends BaseObservable {
         public void setLocked(boolean locked) {
             this.locked = locked;
         }
-    }
 
+        public ArrayList<Assignee> getAssignees() {
+            return assignees;
+        }
+
+        public void addAssignee(Assignee assignee) {
+            assignees.add(assignee);
+        }
+
+        public void addAssignees(ArrayList<Assignee> assignees) {
+            this.assignees = assignees;
+        }
+
+
+        /**
+         * SubSubClass Assignee
+         */
+        public static class Assignee {
+            private String guestId;
+            private int amount;
+
+            public String getGuestId() {
+                return guestId;
+            }
+
+            public void setGuestId(String guestId) {
+                this.guestId = guestId;
+            }
+
+            public int getAmount() {
+                return amount;
+            }
+
+            public void setAmount(int amount) {
+                this.amount = amount;
+            }
+        }
+
+    }
 
     /**
      * Subclass Guest
