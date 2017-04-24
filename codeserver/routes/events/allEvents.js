@@ -36,13 +36,17 @@ router.get('/', authenticationCheck, function(req, res) {
 			//format the events for frontend
 			var outputEvents = [];
 
+			var checkGuestStatus = function(guest){
+					var status = parseInt(guest.status);
+					return ( status === 1);
+				};
+
 			for (var i = events.length - 1; i >= 0; i--) {
 				var outputEvent = {};
 				var currentEvent = events[i];
-				//calculate how many guests accepted the meeting
-				var guests = currentEvent.guests.filter(function(guest){
-					return guest.status === 1;
-				});
+				// guests that accepted the meeting
+				var guests = currentEvent.guests.filter(checkGuestStatus);
+				
 				outputEvent.guestCount = guests.length;
 				//TODO try to show most relevant users for user
 				outputEvent.guestImgs = [];
