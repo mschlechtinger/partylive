@@ -127,3 +127,5 @@ fileserver/files
 /captures
 .externalNativeBuild
 ~$Service Definition.pptx
+codeserver/config codeservcer.js
+fileserver/config fileserver.js
