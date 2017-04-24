@@ -24,7 +24,7 @@ router.post('/:itemId', authenticationCheck, function(req, res) {
 	    event.save(function(err){
 	    	if(err) return res.status(500).json(err);
 
-	    	res.status(204).json({status:"Put successful",remaining: event.bringItems[itemIndex].remaining});
+	    	res.status(200).json({status:"Put successful",remaining: event.bringItems[itemIndex].remaining});
 	    });
 	});
 });
