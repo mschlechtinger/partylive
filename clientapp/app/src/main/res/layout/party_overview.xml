@@ -3,7 +3,7 @@
     <data>
         <variable
             name="party"
-            type="com.example.d062589.partylive.Party"/>
+            type="com.example.d062589.partylive.Models.Party"/>
     </data>
 
     <LinearLayout
@@ -22,7 +22,6 @@
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="0.25"
-
 
         android:src="@{party.imgUrl}"
         android:contentDescription="@null" />

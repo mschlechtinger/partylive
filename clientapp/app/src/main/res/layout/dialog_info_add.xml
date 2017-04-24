@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/colorBackground">
+
+    <com.example.d062589.partylive.Utils.FontAwesome
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/colorAccent"
+        android:textColor="@color/colorText"
+        android:text="@string/info_add"
+        android:textSize="@dimen/text_size_big"
+        android:gravity="center"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/margin_very_big"
+        android:layout_marginLeft="@dimen/margin_very_big"
+        android:layout_marginRight="@dimen/margin_very_big"
+        android:layout_marginBottom="@dimen/margin_normal">
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_weight="0.85"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorText">
+
+            <EditText
+                android:id="@+id/location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorText"
+                android:textCursorDrawable="@null"
+                android:hint="Where's the party?"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="0.15"
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/margin_big">
+
+            <com.example.d062589.partylive.Utils.FontAwesome
+                android:id="@+id/locationCross"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:text="@string/location_icon"
+                android:textSize="@dimen/text_size_medium"
+                android:background="@color/colorAccent"
+                android:textColor="@color/colorText"
+                android:onClick="getCurrentLocation"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_very_big"
+        android:layout_marginRight="@dimen/margin_very_big"
+        android:layout_marginBottom="@dimen/margin_very_big"
+        android:textColorHint="@color/colorText">
+
+        <EditText
+            android:id="@+id/description"
+            android:inputType="textMultiLine"
+            android:lines="6"
+            android:gravity="top|start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorText"
+            android:textCursorDrawable="@null"
+            android:hint="Party Desciption"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+
+</LinearLayout>

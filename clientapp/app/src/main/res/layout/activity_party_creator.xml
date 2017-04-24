@@ -1,51 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <data>
-        <variable
-            name="party"
-            type="com.example.d062589.partylive.Party"/>
-    </data>
-    <android.support.design.widget.CoordinatorLayout
-        xmlns:tools="http://schemas.android.com/tools"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    android:paddingBottom="@dimen/margin_humongous"
+    android:paddingTop="@dimen/margin_humongous"
+    android:textColor="@color/colorText"
+    tools:context="com.example.d062589.partylive.Activities.PartyCreatorActivity">
+
+    <!--Image & TextBox-->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textColor="@color/colorText"
-        android:background="@color/colorBackground"
-        tools:context="com.example.d062589.partylive.PartyCreatorActivity">
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="@color/color_bottom_sheet"
+        android:paddingBottom="40dp"
+        android:paddingEnd="50dp"
+        android:paddingStart="50dp"
+        android:paddingTop="40dp">
 
-        <RelativeLayout
+        <ImageView
+            android:id="@+id/party_image"
+
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="200dp"
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/messagesContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentStart="false"
-                android:layout_alignParentTop="false"
-                android:layout_marginBottom="20dp"
-                android:layout_above="@+id/messageEdit"
-                android:layout_marginTop="10dp"
-                android:listSelector="@android:color/transparent"
-                android:transcriptMode="alwaysScroll"
-                android:divider="@null" />
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+
+            android:paddingEnd="10dp"
+            android:paddingStart="10dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add_a_photo_white_24dp"
+            android:onClick="loadImg"/>
+
+
+        <com.example.d062589.partylive.Utils.FontAwesome
+            android:id="@+id/edit_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/party_image"
+            android:layout_toEndOf="@+id/party_image"
+            android:layout_marginTop="-25dp"
+            android:layout_marginStart="-40dp"
+
+            android:visibility="invisible"
+
+            android:layout_centerInParent="true"
+            android:textSize="@dimen/text_size_huge"
+            android:textColor="@color/colorText"
+            android:text="@string/edit_icon"/>
+
+
+
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/input_layout_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/party_image"
+            android:layout_marginTop="@dimen/margin_big">
 
             <EditText
-                android:id="@+id/messageEdit"
+                android:id="@+id/party_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:hint="type message" />
+                android:hint="Name"
+                android:textColor="@color/colorText"
+                android:textCursorDrawable="@null" />
 
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Configure Party"
-                android:onClick="configurePartyDetails"
-                android:layout_alignParentBottom="true"/>
 
-        </RelativeLayout>
+        </android.support.design.widget.TextInputLayout>
 
-    </android.support.design.widget.CoordinatorLayout>
 
-</layout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
+
+
+        <Button
+            android:id="@+id/configureParty"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+
+            android:onClick="configurePartyDetails"
+            android:text="@string/configure_party"
+
+            android:background="@color/color_bottom_sheet"
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/text_size_medium"
+
+            android:layout_marginStart="@dimen/margin_huge"
+            android:layout_marginEnd="@dimen/margin_huge"
+
+            android:layout_centerHorizontal="true" />
+
+
+
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

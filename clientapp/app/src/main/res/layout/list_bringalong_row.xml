@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:id="@+id/recyclerRow">
+
+    <!--Amount Text left-->
+    <RelativeLayout
+        android:id="@+id/amount"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:id="@+id/amountText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+
+            android:text="@string/default_amount_bringalong"
+            android:textColor="@color/colorText" />
+    </RelativeLayout>
+
+    <!--Increase Amount Button-->
+    <RelativeLayout
+        android:id="@+id/increaseButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        android:layout_toEndOf="@+id/amount"
+
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.example.d062589.partylive.Utils.FontAwesome
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+
+            android:text="@string/increase_icon"
+            android:textColor="@color/colorText" />
+    </RelativeLayout>
+
+
+
+
+    <!--Title-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="?android:attr/selectableItemBackground"
+        tools:background="@color/color_bottom_sheet"
+        android:orientation="vertical"
+
+        android:layout_toEndOf="@+id/increaseButton">
+
+
+        <TextView
+            android:id="@+id/title"
+            android:textColor="@color/colorText"
+            android:textSize="@dimen/text_size_normal"
+            android:textStyle="bold"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+
+    </RelativeLayout>
+
+    <!--Remaining amount needed-->
+    <TextView
+        android:id="@+id/needed"
+        android:textColor="@color/colorText"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toStartOf="@+id/cancelButton"
+        android:gravity="center_vertical"
+
+        android:layout_marginEnd="@dimen/margin_normal"/>
+
+
+
+
+    <!--Cancel Button-->
+    <RelativeLayout
+        android:id="@+id/cancelButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorCancel"
+        android:layout_toStartOf="@+id/applyButton"
+
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.example.d062589.partylive.Utils.FontAwesome
+            android:id="@+id/cancelText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+
+            android:textColor="@color/colorText"
+
+            android:text="@string/cancel_icon"/>
+    </RelativeLayout>
+
+    <!--Apply Button-->
+    <RelativeLayout
+        android:id="@+id/applyButton"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/colorApply"
+        android:layout_alignParentEnd="true"
+
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.example.d062589.partylive.Utils.FontAwesome
+            android:id="@+id/applyText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+
+            android:textColor="@color/colorText"
+
+            android:text="@string/apply_icon"/>
+    </RelativeLayout>
+
+</RelativeLayout>
