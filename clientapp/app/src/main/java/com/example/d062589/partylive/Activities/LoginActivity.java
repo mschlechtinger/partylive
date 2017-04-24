@@ -164,18 +164,78 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-
-                // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
-                this.finish();
+                final String email = data.getStringExtra("email");
+                final String password = data.getStringExtra("password");
+                try {
+                    login(email, password);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        // disable going back to the MainActivity
-        moveTaskToBack(true);
+    private void login(final String email, final String password) throws JSONException {
+        Log.d(TAG, "Login");
+        loginButton.setEnabled(false);
+
+        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
+                ProgressDialog.STYLE_SPINNER);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Authenticating...");
+        progressDialog.show();
+
+        new android.os.Handler().
+                post(
+                        new Runnable() {
+                            public void run() {
+                                JSONObject payload = new JSONObject();
+
+                                try {
+                                    payload.put("username", email);
+                                    payload.put("password", password);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                String path = "/auth/login";
+
+                                RestClient.getInstance(context).post(payload, path, new MyListener<JSONObject>() {
+                                    @Override
+                                    public void getResult(JSONObject response) {
+                                        if (response != null) {
+                                            // Network & JSON Variables
+                                            ObjectMapper mapper = new ObjectMapper();
+                                            String session;
+                                            String userId;
+
+                                            // Get the session cookie & userId
+                                            try {
+                                                JsonNode root = mapper.readTree(response.toString());
+                                                userId = root.get("userId").toString();
+                                                session = root.at("/headers").get("set-cookie").toString();
+
+                                                // Remove Quotes
+                                                userId = userId.substring(1, userId.length() - 1);
+                                                session = session.substring(1, session.length() - 1);
+
+                                                Log.e(TAG, "userID: " + userId);
+                                                Log.e(TAG, "session: " + session);
+
+                                                onLoginSuccess(userId, session, progressDialog);
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            onLoginFailed(progressDialog);
+                                        }
+                                    }
+
+                                });
+                            }
+                        });
+
     }
 
     public void onLoginSuccess(String userId, String session, ProgressDialog progressDialog) {
@@ -194,13 +254,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginFailed(ProgressDialog progressDialog) {
-        //TODO: Implement logic for failed login here
         Toast.makeText(getBaseContext(), "Login failed! Try it again", Toast.LENGTH_LONG).show();
         progressDialog.dismiss();
         loginButton.setEnabled(true);
     }
 
-    public boolean validate() {
+    private boolean validate() {
         boolean valid = true;
 
         String email = emailText.getText().toString();

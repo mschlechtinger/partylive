@@ -1,6 +1,7 @@
 package com.example.d062589.partylive.Activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -14,7 +15,9 @@ import android.widget.Toast;
 
 import com.example.d062589.partylive.Models.User;
 import com.example.d062589.partylive.R;
+import com.example.d062589.partylive.Utils.MyListener;
 import com.example.d062589.partylive.Utils.PrefUtils;
+import com.example.d062589.partylive.Utils.RestClient;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -22,7 +25,10 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -36,6 +42,10 @@ import org.json.JSONObject;
 public class StartActivity extends AppCompatActivity {
 
     private final static String TAG = StartActivity.class.getSimpleName();
+    private static final int REQUEST_SIGNUP = 0;
+
+    private Context context;
+    private PrefUtils prefUtils;
 
     private LinearLayout linearLayout;
 
@@ -58,6 +68,8 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
+        this.context = getApplicationContext();
 
         getSupportActionBar().hide();
 
@@ -116,8 +128,106 @@ public class StartActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SIGNUP) {
+            if (resultCode == RESULT_OK) {
+                final String email = data.getStringExtra("email");
+                final String password = data.getStringExtra("password");
+                try {
+                    login(email, password);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+            callbackManager.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void login(final String email, final String password) throws JSONException {
+        Log.d(TAG, "Login");
+        loginButton.setEnabled(false);
+
+        final ProgressDialog progressDialog = new ProgressDialog(StartActivity.this,
+                ProgressDialog.STYLE_SPINNER);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Authenticating...");
+        progressDialog.show();
+
+        new android.os.Handler().
+                post(
+                        new Runnable() {
+                            public void run() {
+                                JSONObject payload = new JSONObject();
+
+                                try {
+                                    payload.put("username", email);
+                                    payload.put("password", password);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                String path = "/auth/login";
+
+                                RestClient.getInstance(context).post(payload, path, new MyListener<JSONObject>() {
+                                    @Override
+                                    public void getResult(JSONObject response) {
+                                        if (response != null) {
+                                            // Network & JSON Variables
+                                            ObjectMapper mapper = new ObjectMapper();
+                                            String session;
+                                            String userId;
+
+                                            // Get the session cookie & userId
+                                            try {
+                                                JsonNode root = mapper.readTree(response.toString());
+                                                userId = root.get("userId").toString();
+                                                session = root.at("/headers").get("set-cookie").toString();
+
+                                                // Remove Quotes
+                                                userId = userId.substring(1, userId.length() - 1);
+                                                session = session.substring(1, session.length() - 1);
+
+                                                Log.e(TAG, "userID: " + userId);
+                                                Log.e(TAG, "session: " + session);
+
+                                                onLoginSuccess(userId, session, progressDialog);
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            onLoginFailed(progressDialog);
+                                        }
+                                    }
+
+                                });
+                            }
+                        });
+
+    }
+
+    public void onLoginSuccess(String userId, String session, ProgressDialog progressDialog) {
+        loginButton.setEnabled(true);
+
+
+        prefUtils = PrefUtils.getInstance(context);
+        User user = new User();
+        user.userID = userId;
+        user.session = session;
+        prefUtils.setCurrentUser(user);
+
+        Intent intent = new Intent(context, MainActivity.class);
+        startActivity(intent);
+        progressDialog.dismiss();
+        this.finish();
+    }
+
+    public void onLoginFailed(ProgressDialog progressDialog) {
+        Toast.makeText(getBaseContext(), "Login failed! Try it again", Toast.LENGTH_LONG).show();
+        progressDialog.dismiss();
+        Intent intent = new Intent(context, LoginActivity.class);
+        startActivity(intent);
     }
 
     private FacebookCallback<LoginResult> mCallBack = new FacebookCallback<LoginResult>() {
@@ -186,7 +296,7 @@ public class StartActivity extends AppCompatActivity {
 
     public void onSignUpPressed(View view) {
         Intent intent = new Intent(StartActivity.this, SignupActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_SIGNUP);
     }
 
     private void sendFacebookUserData(final JSONObject response) {
