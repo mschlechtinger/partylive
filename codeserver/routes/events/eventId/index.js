@@ -39,7 +39,7 @@ router.get('/', authenticationCheck, function(req, res) {
 		outputEvent.bringItems = event.bringItems;
 		outputEvent.publicEvent = event.publicEvent;
 		outputEvent.startDate = event.startDate;
-		outputEvent.isParticipant = event.isGuest(req.user.id);
+		outputEvent.participationStatus = event.getParticipationStatus(req.user.id);
 		outputEvent.imgUrl = fileHandler.getFileUrl(event.imgUrl, req.user.id,"jpg");
 		outputEvent.organizer = event.organizer;
 		outputEvent.organizer.imgUrl = fileHandler.getFileUrl(event.organizer.imgUrl, req.user.id,"jpg");
@@ -80,7 +80,7 @@ router.put('/', authenticationCheck, fileHandler.uploadImage, function(req, res)
 	    for (var i = req.body.guests.length - 1; i >= 0; i--) {
 	    	var guest = req.body.guests[i];
 	    	//TODO parse from account document
-	    	if(guest.constructor === String) guest = {guestId: guest, status: 'Not Invited'};
+	    	if(guest.constructor === String) guest = {guestId: guest, status: 0};
 
 	    	guests.push(guest);
 	    }
@@ -113,15 +113,13 @@ router.put('/image', authenticationCheck, fileHandler.uploadFile, function(req, 
 	});
 });
 
-router.put('/participate', authenticationCheck, function(req, res) {
+router.put('/participationStatus', authenticationCheck, function(req, res) {
 		EventModel.findById(req.params.eventId, function(err, event){
 	    if(err) return res.status(500).json(err);
 	    if(!event) return res.status(404).json({error: 'Event not found'});
-	    //if(event.organizer._id.toString() !== req.user.id || user in guests) return res.status(403).json({error: 'Cannot bring items to events you are not a guest of.'});
+	    
+	    event.setParticipationStatus(req.user, req.body.participationStatus);
 
-	    if(!event.isGuest(req.user.id)){
-	    	event.guests.push({guestId: req.user.id, status: "Accepted", imgUrl: req.user.imgUrl, name: req.user.name, username: req.user.username });
-	    }
 	    event.save(function(err){
 	    	if(err) return res.status(500).json(err);
 

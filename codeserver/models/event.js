@@ -43,6 +43,36 @@ EventSchema.pre('validate', function (next) {
 EventSchema.methods.isGuest = function(userId) {
 	return this.organizer._id.toString() === userId || !!this.guests.filter(function(guest){return guest.guestId.toString() === userId;})[0];
 };
+//check user status
+EventSchema.methods.getParticipationStatus = function(userId) {
+	// 1= participates 0=unknown -1=not participating
+	if(this.isGuest(userId)){
+		if(this.organizer._id.toString() === userId){
+			return 1;
+		}
+		return this.guests.filter(function(guest){return guest.guestId.toString() === userId;})[0].status;
+	}
+	return 0;
+};
+
+EventSchema.methods.setParticipationStatus = function(user, participationStatus){
+	if(this.isGuest(user.id)){
+
+		var guest = this.guests.filter(function(guest){return guest.guestId.toString() === user.id;})[0];
+
+		if(!guest){
+			//he is organizer
+			return;
+		}else{
+			var guestIndex = this.guests.indexOf(guest);
+			this.guests[guestIndex].status = participationStatus;
+			return;
+		}
+	}else{
+		event.guests.push({guestId: user.id, status: participationStatus, imgUrl: user.imgUrl, name: user.name, username: user.username });
+		return;
+	}
+};
 
 
 module.exports = mongoose.model('Event', EventSchema);
