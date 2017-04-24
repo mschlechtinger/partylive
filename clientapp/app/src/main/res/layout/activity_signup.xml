@@ -13,7 +13,6 @@
         android:paddingRight="24dp"
         android:paddingTop="24dp">
 
-
         <!-- Email Label -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -51,25 +50,24 @@
         </android.support.design.widget.TextInputLayout>
 
         <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btn_login"
+            android:id="@+id/btn_signup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:layout_marginTop="24dp"
             android:background="@color/colorAccent"
             android:padding="12dp"
-            android:text="Login" />
+            android:text="SignUp now" />
 
         <TextView
-            android:id="@+id/link_signup"
+            android:id="@+id/link_login"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:gravity="center"
-            android:text="Hier Registrieren"
+            android:text="Hier Einloggen"
             android:textColor="@color/colorText"
             android:textSize="16dp" />
-
 
     </LinearLayout>
 </ScrollView>

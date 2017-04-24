@@ -817,4 +817,10 @@ public class MainActivity extends AppCompatActivity
         stayHome.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
         // TODO: SEND REQUEST & PERSIST
     }
+
+    @Override
+    public void onBackPressed() {
+        // disable going back to Start/Login
+        moveTaskToBack(true);
+    }
 }
