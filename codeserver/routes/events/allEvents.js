@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 const authenticationCheck = require('../../authentication/authenticationCheck');
-const admin = require('../../firebase/firebase-connection')
+const admin = require('../../firebase/firebaseConnection')
 const EventSchema = require('../../models/event');
 const Account = require('../../models/account');
 const fileHandler = require('../../files/fileHandler');
@@ -77,15 +77,9 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 	}
 	var guests = [];
 	var guestIds = [];
-<<<<<<< HEAD
 	var deviceIds = [];
 
-	for (var i = body.guests.length - 1; i >= 0; i--) {
-		guestIds.push( new mongoose.Types.ObjectId( body.guests[i] ) );
-	}
-
-	Account.find({_id: {$in: guestIds}}, 'username name imgUrl deviceId', function(err, accounts){
-=======
+	
 	if(body.guests){
 		for (var i = body.guests.length - 1; i >= 0; i--) {
 			var guest = body.guests[i];
@@ -95,8 +89,7 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 		}
 	}
 
-	Account.find({_id: {$in: guestIds}}, '_id username name imgUrl', function(err, accounts){
->>>>>>> 1509ab99937122f5b77ea6eb51a1a6ba23061f44
+	Account.find({_id: {$in: guestIds}}, '_id username name imgUrl deviceId', function(err, accounts){
 		if(err) return res.status(500).json({error:err.message});
 
 		for (var i = accounts.length - 1; i >= 0; i--) {
@@ -110,16 +103,12 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 			}
 			guest.imgUrl = account.imgUrl;
 			guest.status = "Accepted";
-<<<<<<< HEAD
 			
 			if(account.deviceId) {
 				deviceIds.push(account.deviceId); // *** for firebase-Push-Notifications
 			}
-			
-=======
-			guest.guestId = account._id;
 
->>>>>>> 1509ab99937122f5b77ea6eb51a1a6ba23061f44
+			guest.guestId = account._id;
 			guests.push(guest);
 		}
 		
@@ -140,16 +129,11 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 				console.log(err);
 				return res.status(500).json({error: err.message});
 			}
-<<<<<<< HEAD
-			
 			// send push Notifications to all invited clients
 			for (var i = 0; i <= deviceIds.length - 1; i++) {
 				pushNewEvent(deviceIds[i], req.user.name, body.title, body.startDate);
 			}
-			res.status(201).json(createdEvent);
-=======
 			res.status(201).json({eventId:createdEvent.id});
->>>>>>> 1509ab99937122f5b77ea6eb51a1a6ba23061f44
 		});
 	});
 });
