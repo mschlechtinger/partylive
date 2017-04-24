@@ -40,8 +40,8 @@ router.get('/', authenticationCheck, function(req, res) {
 				var outputEvent = {};
 				var currentEvent = events[i];
 				//calculate how many guests accepted the meeting
-				var guests = currentEvent.guests.filter(function(event){
-					return event.status === 'Accepted';
+				var guests = currentEvent.guests.filter(function(guest){
+					return guest.status === 1;
 				});
 				outputEvent.guestCount = guests.length;
 				//TODO try to show most relevant users for user
@@ -98,7 +98,7 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 				guest.name = account.username;
 			}
 			guest.imgUrl = account.imgUrl;
-			guest.status = "Accepted";
+			guest.status = 0;
 			guest.guestId = account._id;
 
 			guests.push(guest);
