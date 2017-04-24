@@ -89,12 +89,12 @@ public class StartActivity extends AppCompatActivity {
             }
         });
 
-        user = PrefUtils.getInstance(StartActivity.this).getCurrentUser();
+        /*user = PrefUtils.getInstance(StartActivity.this).getCurrentUser();
         if (user != null) {
             Intent homeIntent = new Intent(StartActivity.this, MainActivity.class);
             startActivity(homeIntent);
             finish();
-        }
+        }*/
 
     }
 
@@ -155,6 +155,9 @@ public class StartActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
+        SharedPreferences sharedPreferences = context.getSharedPreferences("token", Context.MODE_PRIVATE);
+        final String deviceId = sharedPreferences.getString("token", null);
+
         new android.os.Handler().
                 post(
                         new Runnable() {
@@ -164,6 +167,7 @@ public class StartActivity extends AppCompatActivity {
                                 try {
                                     payload.put("username", email);
                                     payload.put("password", password);
+                                    payload.put("deviceId", deviceId);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
