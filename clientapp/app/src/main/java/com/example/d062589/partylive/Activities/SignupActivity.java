@@ -3,6 +3,7 @@ package com.example.d062589.partylive.Activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -89,6 +90,8 @@ public class SignupActivity extends AppCompatActivity {
 
         final String email = emailText.getText().toString();
         final String password = passwordText.getText().toString();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("token", Context.MODE_PRIVATE);
+        final String deviceID = sharedPreferences.getString("token", null);
 
         new android.os.Handler().
                 post(
@@ -99,6 +102,7 @@ public class SignupActivity extends AppCompatActivity {
                                 try {
                                     payload.put("username", email);
                                     payload.put("password", password);
+                                    payload.put("deviceId", deviceID);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
