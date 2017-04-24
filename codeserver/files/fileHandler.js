@@ -28,6 +28,8 @@ fileHandler.isBase64 = function(str) {
 };
 fileHandler.uploadImage = function(req,res,next) { 
 	var image = req.body.imgUrl;
+	if(!image) return next();
+	
 	if(fileHandler.isURL(image)) {
 		req.image = image;
 		next();
