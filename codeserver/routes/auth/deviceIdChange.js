@@ -20,6 +20,7 @@ router.post('/', authenticationCheck, function(req, res){
 		    };
 			if (result) {
 			   	console.log("DeviceId changed!") // everything worked, deviceId changed
+			   	console.log("new deviceId: " + acc.deviceId);
 			   	res.status(200).json({"status":"User logged in", "userId": req.user.id, "info" : "deviceId changed successfully"});
 			} else {
 				console.log('deviceId did not change');

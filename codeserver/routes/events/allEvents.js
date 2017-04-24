@@ -70,6 +70,7 @@ router.get('/', authenticationCheck, function(req, res) {
   });
 
 router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res) {
+	console.log("in der Post Methode!")
 	var body = req.body;
 	//TODO insert proper input validation here
 	if (!body.title || !body.startDate || !body.location ) {
@@ -133,6 +134,7 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 			for (var i = 0; i <= deviceIds.length - 1; i++) {
 				pushNewEvent(deviceIds[i], req.user.name, body.title, body.startDate);
 			}
+			console.log("Ende der POST methode!")
 			res.status(201).json({eventId:createdEvent.id});
 		});
 	});
