@@ -3,6 +3,7 @@ package com.example.d062589.partylive.Activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -241,10 +242,14 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginSuccess(String userId, String session, ProgressDialog progressDialog) {
         loginButton.setEnabled(true);
 
+        SharedPreferences sharedPreferences = context.getSharedPreferences("token", Context.MODE_PRIVATE);
+        String deviceId = sharedPreferences.getString("token", null);
+
         prefUtils = PrefUtils.getInstance(context);
         User user = new User();
         user.userID = userId;
         user.session = session;
+        user.deviceID = deviceId;
         prefUtils.setCurrentUser(user);
 
         Intent intent = new Intent(context, MainActivity.class);
