@@ -69,7 +69,8 @@ router.get('/', authenticationCheck, function(req, res) {
 	});
   });
 
-router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res) {
+// fileHandler.uploadImage,
+router.post('/', authenticationCheck, function(req, res) {
 	console.log("in der Post Methode!")
 	var body = req.body;
 	//TODO insert proper input validation here
@@ -133,7 +134,7 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 			// send push Notifications to all invited clients
 			for (var i = 0; i < deviceIds.length; i++) {
 				console.log(deviceIds[i]);
-				pushNewEvent(deviceIds[i], req.user.name, body.title, body.startDate);
+				pushNewEvent(deviceIds[i], body.title);
 			}
 			console.log("Ende der POST methode!")
 			res.status(201).json({eventId:createdEvent.id});
@@ -145,11 +146,11 @@ module.exports = router;
 
 
 //*** send Push-Notifications via firebase Notification-Service
-function pushNewEvent(deviceId, organizer, eventName, startDate) {
+function pushNewEvent(deviceId, eventName) {
 	var payload = {
 			"notification" : {
-				"title" : organizer + " lädt dich zu seiner Party ein!",
-				"body" : eventName + " findet " + startDate + " statt. Gib bescheid, ob du teilnimmst."
+				"title" : "Du wurdest zur Party " + eventName + " eingeladen!",
+				"body" :  "Gib bescheid, ob du teilnimmst."
 			}, 
 	};
 	admin.messaging().sendToDevice(deviceId, payload)
