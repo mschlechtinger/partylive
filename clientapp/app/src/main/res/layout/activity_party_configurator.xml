@@ -1,0 +1,64 @@
+<android.support.design.widget.CoordinatorLayout
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinator_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:textColor="@color/colorText"
+    android:background="@color/colorBackground"
+    tools:context="com.example.d062589.partylive.Activities.PartyCreatorActivity">
+
+
+
+    <!--FAB Context-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_very_big"
+        android:elevation="@dimen/z_above_bottom_sheet"
+
+        android:onClick="fabAction"
+
+        android:src="@drawable/user_plus"
+
+        android:tint="@color/colorText"
+        android:layout_gravity="bottom|end"
+        app:rippleColor="@color/colorBackground" />
+
+
+
+    <!--ViewPager-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/sliding_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.15"
+            app:tabMode="fixed"
+            app:tabTextColor="@color/colorText"
+            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabTextAppearance="@style/MyCustomTextAppearance"
+            android:background="@color/color_bottom_sheet"/>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.75"
+            android:background="@color/colorBackground" />
+
+    </LinearLayout>
+
+
+
+
+
+
+</android.support.design.widget.CoordinatorLayout>

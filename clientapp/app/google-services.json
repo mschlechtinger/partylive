@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "424988225857",
+    "firebase_url": "https://fine-gradient-160316.firebaseio.com",
+    "project_id": "fine-gradient-160316",
+    "storage_bucket": "fine-gradient-160316.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424988225857:android:b78d2209aaadb3cb",
+        "android_client_info": {
+          "package_name": "com.example.d062589.partylive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "424988225857-0sf6vb6s3hgcca2gbh368q3q2ff20ami.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX3nHMXl_qXg_e6EQlVBqckfsjgsTta6w"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

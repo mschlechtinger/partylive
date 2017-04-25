@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/colorBackground">
+
+    <com.example.d062589.partylive.Utils.FontAwesome
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/colorAccent"
+        android:textColor="@color/colorText"
+        android:text="@string/guest_add"
+        android:textSize="@dimen/text_size_big"
+        android:gravity="center"/>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_very_big"
+        android:layout_marginLeft="@dimen/margin_very_big"
+        android:layout_marginRight="@dimen/margin_very_big"
+        android:layout_marginBottom="@dimen/margin_normal"
+        android:textColorHint="@color/colorText">
+
+        <EditText
+            android:id="@+id/guest_mail"
+            android:inputType="textEmailAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorText"
+            android:textCursorDrawable="@null"
+            android:hint="What's the mail of the person?"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+
+</LinearLayout>

@@ -1,9 +1,11 @@
-'use strict'
+'use strict';
 
-const bodyParser = require('body-parser');
 const express = require('express');
 const router = express.Router();
 
-router.use('/test', require('./test'));
+//distribute requests for path myserver/
+router.use('/auth', require('./auth'));
+router.use('/events', require('./events'));
+router.use('/users', require('./users'));
 
 module.exports = router;
