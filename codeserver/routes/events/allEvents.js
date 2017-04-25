@@ -105,7 +105,7 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 			guest.imgUrl = account.imgUrl;
 			guest.status = "Accepted";
 			
-			if(account.deviceId) {
+			if(!!account.deviceId) {
 				deviceIds.push(account.deviceId); // *** for firebase-Push-Notifications
 			}
 
@@ -131,7 +131,8 @@ router.post('/', authenticationCheck, fileHandler.uploadImage, function(req, res
 				return res.status(500).json({error: err.message});
 			}
 			// send push Notifications to all invited clients
-			for (var i = 0; i <= deviceIds.length - 1; i++) {
+			for (var i = 0; i < deviceIds.length; i++) {
+				console.log(deviceIds[i]);
 				pushNewEvent(deviceIds[i], req.user.name, body.title, body.startDate);
 			}
 			console.log("Ende der POST methode!")
@@ -151,7 +152,7 @@ function pushNewEvent(deviceId, organizer, eventName, startDate) {
 				"body" : eventName + " findet " + startDate + " statt. Gib bescheid, ob du teilnimmst."
 			}, 
 	};
-	admin.messaging().sendToDevice(deviceID, payload)
+	admin.messaging().sendToDevice(deviceId, payload)
 	.then(function(response) {
 		console.log("Successfully sent message:\n", response);
 	})
