@@ -215,14 +215,10 @@ public class StartActivity extends AppCompatActivity {
     public void onLoginSuccess(String userId, String session, ProgressDialog progressDialog) {
         loginButton.setEnabled(true);
 
-        SharedPreferences sharedPreferences = context.getSharedPreferences("token", Context.MODE_PRIVATE);
-        String deviceId = sharedPreferences.getString("token", null);
-
         prefUtils = PrefUtils.getInstance(context);
         User user = new User();
         user.userID = userId;
         user.session = session;
-        user.deviceID = deviceId;
         prefUtils.setCurrentUser(user);
 
         Intent intent = new Intent(context, MainActivity.class);
