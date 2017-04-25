@@ -30,26 +30,16 @@ public class FirebaseIDService extends FirebaseInstanceIdService {
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.e(TAG, "Refreshed token: " + refreshedToken);
 
+        SharedPreferences sharedPreferences = context.getSharedPreferences("token", context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("token", refreshedToken);
+        editor.commit();
+
         //check if device already exists
         prefUtils = PrefUtils.getInstance(context);
         User currentUser = prefUtils.getCurrentUser();
         if (currentUser != null) {
-            String deviceID = currentUser.deviceID;
-            if (deviceID != null) {
-                String userId = currentUser.userID;
-                String session = currentUser.session;
-                currentUser.deviceID = refreshedToken;
-                prefUtils.setCurrentUser(currentUser);
-                sendRegistrationToServer(refreshedToken, userId, session);
-            }
-        } else {
-            //prevent REST CALL /auth/deviceIdChange
-            //but save deviceID in sharedPreferences
-
-            SharedPreferences sharedPreferences = context.getSharedPreferences("token", context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("token", refreshedToken);
-            editor.commit();
+            sendRegistrationToServer(refreshedToken, currentUser.userID, currentUser.session);
         }
     }
 

@@ -9,7 +9,6 @@ import java.io.Serializable;
 public class User implements Serializable {
 
     public String userID;
-    public String deviceID;
     public String facebookID;
     public String session;
 }
